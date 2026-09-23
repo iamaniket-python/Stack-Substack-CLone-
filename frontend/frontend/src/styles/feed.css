@@ -1,0 +1,135 @@
+.feed-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+.feed-page h1 {
+  font-size: 30px;
+  font-weight: 800;
+  margin-bottom: 36px;
+  color: var(--color-text);
+  letter-spacing: -0.6px;
+}
+
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+}
+
+.post-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+.post-card-image {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+
+.post-card-body {
+  padding: 20px 22px 22px;
+}
+
+.post-card-paid-badge {
+  display: inline-block;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 12px;
+}
+
+.post-card-body h2 {
+  font-size: 18.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 10px;
+  color: var(--color-text);
+}
+
+.post-card-excerpt {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.post-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-faint);
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.post-card-author-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-card-dot {
+  color: var(--color-border);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 44px;
+}
+
+.pagination button {
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.pagination button:hover:not(:disabled) {
+  box-shadow: var(--shadow-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.feed-loading,
+.feed-empty {
+  text-align: center;
+  padding: 90px 0;
+  color: var(--color-text-faint);
+  font-size: 16px;
+}

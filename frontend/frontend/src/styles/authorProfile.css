@@ -1,0 +1,137 @@
+.author-profile-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+.author-header {
+  text-align: center;
+  padding-bottom: 40px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.author-avatar-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 18px;
+}
+
+.author-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.author-bio {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto 16px;
+  line-height: 1.6;
+}
+
+.author-stats {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+}
+
+.author-stats strong {
+  color: var(--color-text);
+}
+
+.author-stats-dot {
+  margin: 0 8px;
+  color: var(--color-border);
+}
+
+.author-subscribe-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.author-free-btn,
+.author-paid-btn,
+.author-unsub-btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.author-free-btn {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.author-free-btn:hover:not(:disabled) {
+  box-shadow: var(--shadow-md);
+}
+
+.author-paid-btn {
+  background: linear-gradient(135deg, var(--color-primary), #7b7ff5);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(91, 95, 239, 0.35);
+}
+
+.author-paid-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 95, 239, 0.45);
+}
+
+.author-free-btn:disabled,
+.author-paid-btn:disabled,
+.author-unsub-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.author-subscribed-state {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+}
+
+.sub-tier-badge {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sub-tier-badge.free {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.sub-tier-badge.paid {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.author-unsub-btn {
+  background: none;
+  color: #e0554f;
+  box-shadow: none;
+  text-decoration: underline;
+  padding: 8px 4px;
+}
+
+.author-posts h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--color-text);
+}
