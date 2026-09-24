@@ -134,20 +134,20 @@ const WritePost = () => {
   return (
     <div className="write-page">
       <div className="write-container">
-        {/* <input
+         <input
           className="write-title-small"
           placeholder="Post title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-        /> */}
+        /> 
 
-        {/* <input
+        <input
           className="write-excerpt"
           placeholder="One-line excerpt (optional, shown on the feed card)"
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           maxLength={500}
-        /> */}
+        /> 
 
         <textarea
           className="write-content"

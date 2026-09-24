@@ -20,6 +20,8 @@ const {
 } = require('../utils/tokenUtils');
 const env = require('../config/env');
 
+const REFRESH_COOKIE_NAME = 'substack_refresh_token';
+
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.nodeEnv === 'production',
@@ -37,7 +39,7 @@ const issueTokens = async (res, userId) => {
     expiresAt: getRefreshTokenExpiryDate(),
   });
 
-  res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, REFRESH_COOKIE_OPTIONS);
   return accessToken;
 };
 
@@ -71,7 +73,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const refresh = asyncHandler(async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const token = req.cookies?.[REFRESH_COOKIE_NAME];
   if (!token) throw new ApiError(401, 'No refresh token provided');
 
   let decoded;
@@ -93,11 +95,11 @@ const refresh = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const token = req.cookies?.[REFRESH_COOKIE_NAME];
   if (token) {
     await revokeToken(hashToken(token));
   }
-  res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
+  res.clearCookie(REFRESH_COOKIE_NAME, REFRESH_COOKIE_OPTIONS);
   res.json({ success: true, message: 'Logged out' });
 });
 

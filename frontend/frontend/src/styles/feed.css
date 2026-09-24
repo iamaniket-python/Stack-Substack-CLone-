@@ -1,27 +1,33 @@
 .feed-page {
-  max-width: 1080px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 56px 24px;
+  padding: 40px 24px 80px;
   animation: fadeUp 0.5s var(--ease);
 }
 
-.feed-page h1 {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 36px;
-  color: var(--color-text);
-  letter-spacing: -0.7px;
+/* Masonry via CSS columns — cards stack naturally regardless of image height */
+.feed-masonry {
+  columns: 4 260px;
+  column-gap: 20px;
 }
 
-.feed-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
+@media (max-width: 1100px) {
+  .feed-masonry {
+    columns: 3 220px;
+  }
+}
+
+@media (max-width: 700px) {
+  .feed-masonry {
+    columns: 2 160px;
+  }
 }
 
 .post-card {
-  display: flex;
-  flex-direction: column;
+  display: inline-block;
+  width: 100%;
+  break-inside: avoid;
+  margin-bottom: 20px;
   text-decoration: none;
   color: inherit;
   background: var(--color-surface-glass);
@@ -35,17 +41,17 @@
 
 .post-card:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
 .post-card-image {
   width: 100%;
-  height: 170px;
+  display: block;
   object-fit: cover;
 }
 
 .post-card-body {
-  padding: 20px 22px 22px;
+  padding: 14px 16px 16px;
 }
 
 .post-card-paid-badge {
@@ -58,78 +64,29 @@
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.post-card-body h2 {
-  font-size: 18.5px;
-  font-weight: 700;
-  line-height: 1.35;
-  margin: 0 0 10px;
-  color: var(--color-text);
+  margin-bottom: 10px;
 }
 
 .post-card-excerpt {
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.55;
-  margin-bottom: 16px;
+  color: var(--color-text);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
 
 .post-card-meta {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-text-faint);
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
 }
 
 .post-card-author-avatar {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   object-fit: cover;
-}
-
-.post-card-dot {
-  color: var(--color-border);
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 44px;
-}
-
-.pagination button {
-  padding: 11px 24px;
-  border: none;
-  border-radius: var(--radius-full);
-  background: var(--color-surface-glass);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-sm);
-  font-weight: 600;
-  font-size: 13.5px;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: box-shadow 0.3s var(--ease-soft), background 0.3s var(--ease-soft), transform 0.3s var(--ease);
-}
-
-.pagination button:hover:not(:disabled) {
-  box-shadow: var(--shadow-glow);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.pagination button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
 }
 
 .feed-loading,

@@ -1,6 +1,5 @@
 const { createMessage } = require('../../models/messageModel');
 const { touchConversation, findConversationById } = require('../../models/conversationModel');
-const { notify } = require('../../services/notificationService');
 
 const sendMessageSocketHandler = async (io, socket, payload, callback) => {
   try {
@@ -23,11 +22,13 @@ const sendMessageSocketHandler = async (io, socket, payload, callback) => {
     const recipientId =
       conversation.user_one_id === socket.userId ? conversation.user_two_id : conversation.user_one_id;
 
-    // Emit to both the conversation room (if joined) and the recipient's personal
-    // room (covers the case where they haven't opened this conversation yet)
     io.to(conversationId).emit('message:new', message);
     io.to(recipientId).emit('message:new', message);
 
+    // Lazy require — breaks the circular dependency (socket/index → messageHandler →
+    // notificationService → socket/index). By the time this function actually runs,
+    // every module has finished loading, so this always resolves correctly.
+    const { notify } = require('../../services/notificationService');
     await notify({
       recipientId,
       actorId: socket.userId,

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPostBySlug, clearCurrentPost } from '../features/posts/postSlice';
+import LikeButton from '../components/LikeButton';
+import CommentSection from '../components/CommentSection';
 import '../styles/postDetail.css';
 
 const PostDetail = () => {
@@ -57,6 +59,13 @@ const PostDetail = () => {
         </div>
       ) : (
         <div className="post-detail-content">{post.content}</div>
+      )}
+
+      {!currentLocked && (
+        <>
+          <LikeButton postId={post.id} />
+          <CommentSection postId={post.id} postAuthorId={post.author_id} />
+        </>
       )}
     </article>
   );
