@@ -1,53 +1,183 @@
+/* =========================================================
+   Feed: masonry cards, readable text, like/comment footer
+   Sab colors theme.css tokens se aate hain
+   ========================================================= */
+
 .feed-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: 32px 24px 80px;
   animation: fadeUp 0.5s var(--ease);
 }
 
-/* Masonry via CSS columns — cards stack naturally regardless of image height */
+/* Masonry via CSS columns: cards apni height ke hisaab se stack hote hain */
 .feed-masonry {
   columns: 4 260px;
   column-gap: 20px;
 }
 
 @media (max-width: 1100px) {
+  .feed-masonry { columns: 3 240px; }
+}
+
+@media (max-width: 800px) {
+  .feed-masonry { columns: 2 200px; }
+}
+
+/* Phone: ek column, taaki text aur buttons poore dikhen */
+@media (max-width: 600px) {
+  .feed-page { padding: 20px 14px 64px; }
+
   .feed-masonry {
-    columns: 3 220px;
+    columns: 1;
+    max-width: 560px;
+    margin: 0 auto;
   }
 }
 
-@media (max-width: 700px) {
-  .feed-masonry {
-    columns: 2 160px;
-  }
-}
-
+/* ---------- Card ---------- */
 .post-card {
-  display: inline-block;
+  display: block;
   width: 100%;
   break-inside: avoid;
   margin-bottom: 20px;
-  text-decoration: none;
   color: inherit;
-  background: var(--color-surface-glass);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-md);
+  /* Solid white: glass cream bg par wash out ho jata tha */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
+  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease),
+    border-color 0.35s var(--ease);
 }
 
 .post-card:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+}
+
+/* ---------- Header: avatar | (naam + Subscribe) / time ---------- */
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+}
+
+.post-card-avatar-link {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.post-card-author-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.25);
+}
+
+/* Avatar na ho to initial letter wala gradient circle */
+.post-card-author-avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal));
+}
+
+.post-card-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0; /* lamba naam ellipsis se kate, layout na tute */
+}
+
+.post-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.post-card-author-name {
+  min-width: 0; /* naam shrink ho sakta hai, button nahi */
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-card-author-name:hover {
+  color: var(--color-primary-hover);
+}
+
+.post-card-time {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Subscribe button ---------- */
+.post-card-sub {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary-hover); /* chhote text ke liye darker shade */
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.post-card-sub:hover {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+.post-card-sub.is-subscribed {
+  background: var(--color-primary-soft);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.post-card-sub.is-subscribed:hover {
+  background: transparent;
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.post-card-sub:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---------- Body (cover + content, clickable) ---------- */
+.post-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
 .post-card-image {
   width: 100%;
   display: block;
   object-fit: cover;
+  max-height: 320px; /* bahut lambi cover masonry column na kheenche */
+  background: var(--color-primary-soft); /* image load hone tak placeholder */
 }
 
 .post-card-body {
@@ -56,9 +186,9 @@
 
 .post-card-paid-badge {
   display: inline-block;
-  background: linear-gradient(135deg, var(--color-teal), #5fe0cd);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal));
   color: #fff;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-full);
@@ -68,31 +198,113 @@
 }
 
 .post-card-excerpt {
+  margin: 0;
   color: var(--color-text);
-  font-size: 13.5px;
-  line-height: 1.5;
-  margin-bottom: 12px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  /* Lambi post masonry column ko na kheenche */
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.post-card-meta {
+.post-card-locked {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ---------- Footer: Like + Comment ---------- */
+.post-card-footer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--color-text-faint);
+  gap: 4px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--color-border);
 }
 
-.post-card-author-avatar {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  object-fit: cover;
+.post-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-soft), color 0.2s var(--ease-soft),
+    transform 0.2s var(--ease);
 }
 
+.post-card-action svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+.post-card-action:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.post-card-action:active {
+  transform: scale(0.94);
+}
+
+.post-card-action:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.post-card-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Liked: heart filled + pop animation */
+.post-card-action.is-liked {
+  color: var(--color-danger);
+}
+
+.post-card-action.is-liked svg {
+  fill: currentColor;
+  animation: likePop 0.35s var(--ease);
+}
+
+.post-card-action.is-liked:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+}
+
+@keyframes likePop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Loading / empty ---------- */
 .feed-loading,
 .feed-empty {
   text-align: center;
   padding: 90px 0;
-  color: var(--color-text-faint);
+  color: var(--color-text-muted);
   font-size: 16px;
+}
+
+/* Reduce motion on: hover lift aur pop animation band */
+@media (prefers-reduced-motion: reduce) {
+  .post-card,
+  .post-card-action,
+  .post-card-action.is-liked svg {
+    transition: none;
+    animation: none;
+  }
+  .post-card:hover { transform: none; }
 }

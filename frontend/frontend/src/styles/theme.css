@@ -1,20 +1,26 @@
 :root {
-  --color-bg: #f4f5fb;
+  /* Warm white background, pure white cards */
+  --color-bg: #fffaf7;
   --color-surface: #ffffff;
-  --color-surface-glass: rgba(255, 255, 255, 0.72);
-  --color-text: #1c1d2e;
-  --color-text-muted: #767a90;
-  --color-text-faint: #a6a9bd;
+  --color-surface-glass: rgba(255, 255, 255, 0.78);
+  --color-text: #2b1f19;          /* pure black nahi, warm dark brown: orange ke saath harmonize karta hai */
+  --color-text-muted: #85746a;
+  --color-text-faint: #b8a9a0;
 
-  --color-primary: #6366f1;
-  --color-primary-hover: #5254d6;
-  --color-primary-soft: #eef0ff;
+  /* Primary: #E68457 */
+  --color-primary: #e68457;
+  --color-primary-hover: #d16f41;
+  --color-primary-soft: #fdf0e8;
 
-  --color-violet: #a855f7;
-  --color-teal: #14b8a6;
-  --color-teal-soft: #e6faf7;
+  /* Purane violet/teal ko orange family ke shades se replace kiya (monochrome look).
+     Naam same hain taaki gradients toot na jaayein. */
+  --color-violet: #f4a97f;        /* light peach: gradient ka doosra end */
+  --color-teal: #c9633a;          /* deep burnt orange */
+  --color-teal-soft: #fbe9df;
 
-  --color-border: #ececf5;
+  --color-danger: #dc2626;        /* naya token: unsubscribe hover / delete buttons ke liye */
+
+  /* --color-border: #f3e5dc; */
 
   --font-sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
@@ -23,10 +29,11 @@
   --radius-lg: 24px;
   --radius-full: 999px;
 
-  --shadow-sm: 0 2px 8px rgba(28, 29, 46, 0.04);
-  --shadow-md: 0 8px 24px rgba(28, 29, 46, 0.07);
-  --shadow-lg: 0 20px 48px rgba(28, 29, 46, 0.12);
-  --shadow-glow: 0 8px 28px rgba(99, 102, 241, 0.25);
+  /* Shadows ka tint bhi warm kiya, cool grey shadow orange par ganda dikhta hai */
+  --shadow-sm: 0 2px 8px rgba(43, 31, 25, 0.05);
+  --shadow-md: 0 8px 24px rgba(43, 31, 25, 0.08);
+  --shadow-lg: 0 20px 48px rgba(43, 31, 25, 0.13);
+  --shadow-glow: 0 8px 28px rgba(230, 132, 87, 0.30);
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
@@ -40,9 +47,9 @@ body {
   font-family: var(--font-sans);
   background: var(--color-bg);
   background-image:
-    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.08), transparent 35%),
-    radial-gradient(circle at 90% 20%, rgba(168, 85, 247, 0.07), transparent 35%),
-    radial-gradient(circle at 50% 90%, rgba(20, 184, 166, 0.06), transparent 40%);
+    radial-gradient(circle at 10% 10%, rgba(230, 132, 87, 0.10), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(244, 169, 127, 0.10), transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(230, 132, 87, 0.06), transparent 40%);
   background-attachment: fixed;
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -53,17 +60,11 @@ a {
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }

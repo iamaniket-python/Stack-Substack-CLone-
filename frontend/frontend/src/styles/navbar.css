@@ -1,33 +1,60 @@
+/* =========================================================
+   Navbar: orange + white glassmorphism, mobile responsive
+   Sab colors theme.css tokens se aate hain
+   ========================================================= */
+
 .navbar {
-  height: 72px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  gap: 16px;
+  /* clamp: chhoti screen par 16px, badi par 40px tak */
+  padding: 0 clamp(16px, 4vw, 40px);
   background: var(--color-surface-glass);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid rgba(28, 29, 46, 0.05);
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.14);
+  box-shadow: 0 6px 24px rgba(var(--color-primary-rgb), 0.06);
 }
 
+/* ---------- Logo ---------- */
 .navbar-logo {
-  font-size: 19px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  flex-shrink: 0;
+  color: var(--color-primary-hover); /* fallback agar gradient-text support na ho */
+  background: linear-gradient(135deg, var(--color-teal), var(--color-primary));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
-  text-decoration: none;
-  letter-spacing: -0.4px;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Logo ke aage chhota gradient mark (JSX change nahi chahiye) */
+.navbar-logo::before {
+  content: "";
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.35);
+  -webkit-text-fill-color: initial;
+}
+
+/* ---------- Links ---------- */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .navbar-links a {
@@ -37,6 +64,7 @@
   font-weight: 500;
   padding: 9px 14px;
   border-radius: var(--radius-full);
+  white-space: nowrap;
   transition: background 0.25s var(--ease-soft), color 0.25s var(--ease-soft);
 }
 
@@ -45,8 +73,17 @@
   background: var(--color-primary-soft);
 }
 
+/* NavLink automatically "active" class deta hai */
+.navbar-links a.active:not(.navbar-cta) {
+  color: var(--color-primary-hover); /* chhota text = contrast wala shade */
+  background: var(--color-primary-soft);
+  font-weight: 600;
+}
+
+/* ---------- CTA button ---------- */
 .navbar-cta {
-  background: linear-gradient(135deg, var(--color-primary), #7b7ff5);
+  /* primary -> teal (dark orange): white text ka contrast better rehta hai */
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal)) !important;
   color: #fff !important;
   padding: 10px 22px !important;
   border-radius: var(--radius-full);
@@ -57,10 +94,11 @@
 
 .navbar-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.35);
-  background: linear-gradient(135deg, var(--color-primary), #7b7ff5) !important;
+  box-shadow: 0 12px 28px rgba(var(--color-primary-rgb), 0.4);
+  color: #fff !important;
 }
 
+/* ---------- Logout ---------- */
 .navbar-logout {
   background: transparent;
   border: none;
@@ -70,17 +108,23 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-left: 6px;
+  margin-left: 4px;
   transition: background 0.25s var(--ease-soft), color 0.25s var(--ease-soft);
 }
 
 .navbar-logout:hover {
-  background: #fdeceb;
-  color: #e0554f;
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
 }
 
-.navbar-avatar {
+/* ---------- Avatar ---------- */
+/* Specificity badhayi taaki .navbar-links a ka padding/hover avatar par na lage */
+.navbar-links a.navbar-avatar {
+  padding: 0;
   margin-left: 6px;
+  border-radius: 50%;
+  background: none;
+  display: inline-flex;
 }
 
 .navbar-avatar img,
@@ -89,21 +133,250 @@
   height: 38px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.35);
   transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .navbar-avatar:hover img,
 .navbar-avatar:hover .navbar-avatar-fallback {
   transform: scale(1.08);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-glow);
 }
 
 .navbar-avatar-fallback {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 14px;
+}
+
+/* ---------- Hamburger (JSX mein .navbar-toggle add hone tak hidden) ---------- */
+.navbar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease-soft);
+}
+
+.navbar-toggle:active {
+  transform: scale(0.92);
+}
+
+/* =========================================================
+   Tablet / mobile
+   ========================================================= */
+@media (max-width: 768px) {
+  .navbar {
+    height: 60px;
+  }
+
+  .navbar-links {
+    gap: 2px;
+  }
+
+  .navbar-links a {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .navbar-cta {
+    padding: 8px 16px !important;
+  }
+
+  .navbar-logout {
+    padding: 8px 10px;
+    margin-left: 0;
+  }
+
+  .navbar-avatar img,
+  .navbar-avatar-fallback {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* ----- Drawer mode: sirf tab jab navbar mein .navbar-toggle button ho ----- */
+  .navbar:has(.navbar-toggle) .navbar-toggle {
+    display: inline-flex;
+  }
+
+  .navbar:has(.navbar-toggle) .navbar-links {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 12px;
+    right: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft),
+      visibility 0.25s;
+  }
+
+  .navbar:has(.navbar-toggle) .navbar-links.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .navbar:has(.navbar-toggle) .navbar-links a,
+  .navbar:has(.navbar-toggle) .navbar-logout {
+    padding: 12px 14px;
+    font-size: 15px;
+    text-align: left;
+    border-radius: var(--radius-md);
+  }
+
+  .navbar:has(.navbar-toggle) .navbar-cta {
+    text-align: center !important;
+  }
+
+  .navbar:has(.navbar-toggle) .navbar-links a.navbar-avatar {
+    margin-left: 0;
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Chhote phones */
+@media (max-width: 480px) {
+  .navbar {
+    gap: 8px;
+  }
+
+  .navbar-logo {
+    font-size: 18px;
+    gap: 8px;
+  }
+
+  .navbar-logo::before {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+  }
+
+  .navbar-links a {
+    font-size: 13px;
+    padding: 7px 8px;
+  }
+
+  .navbar-cta {
+    padding: 8px 14px !important;
+  }
+}
+
+/* Jin users ne "reduce motion" on kiya hai unke liye animations off */
+@media (prefers-reduced-motion: reduce) {
+  .navbar *,
+  .navbar-toggle {
+    transition: none !important;
+  }
+}
+/* =========================================================
+   Icon + label links (Navbar.jsx ke NavLink / logout ke liye)
+   ========================================================= */
+.navbar-links {
+  min-width: 0; /* flex child ko shrink hone do, overflow nahi hoga */
+}
+
+.navbar-links a.nav-link,
+.navbar-links .navbar-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-links .navbar-logout svg,
+.navbar-links a.nav-link svg {
+  flex-shrink: 0;
+}
+
+/* Desktop par logout ko halka pill look */
+.navbar-links .navbar-logout {
+  border: 1px solid rgba(var(--color-primary-rgb), 0.25);
+  color: var(--color-primary-hover);
+}
+
+.navbar-links .navbar-logout:hover {
+  border-color: transparent;
+}
+
+/* =========================================================
+   Mobile: sirf icons (text hide)
+   ========================================================= */
+@media (max-width: 768px) {
+  .nav-label {
+    display: none;
+  }
+
+  /* Sign up CTA ka text mobile par bhi dikhna chahiye */
+  .navbar-cta .nav-label {
+    display: inline;
+  }
+
+  /* Icon buttons: gol, fixed size, center */
+  .navbar-links a.nav-link,
+  .navbar-links .navbar-logout {
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    margin: 0;
+    justify-content: center;
+    border-radius: 50%;
+    border-color: transparent;
+    color: var(--color-text-muted);
+  }
+
+  .navbar-links a.nav-link.active {
+    color: var(--color-primary-hover);
+    background: var(--color-primary-soft);
+  }
+
+  .navbar-links .navbar-logout:hover {
+    color: var(--color-danger);
+  }
+
+  .navbar-links {
+    gap: 2px;
+  }
+}
+
+/* Chhote phones (360px - 480px) */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  /* Logo ka mark chhupa do taaki icons ko jagah mile */
+  .navbar-logo::before {
+    display: none;
+  }
+
+  .navbar-links a.nav-link,
+  .navbar-links .navbar-logout {
+    width: 36px;
+    height: 36px;
+  }
+
+  .navbar-links a.navbar-avatar {
+    margin-left: 2px;
+  }
 }

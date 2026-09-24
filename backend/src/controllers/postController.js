@@ -35,7 +35,8 @@ const feed = asyncHandler(async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 10, 50);
   const offset = (page - 1) * limit;
 
-  const posts = await listPublishedPosts({ limit, offset });
+  // userId: logged-in user ho to is_subscribed sahi aayega, guest ke liye null
+  const posts = await listPublishedPosts({ limit, offset, userId: req.userId || null });
   res.json({ success: true, data: { posts, page, limit } });
 });
 

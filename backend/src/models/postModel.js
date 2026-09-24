@@ -30,16 +30,31 @@ const findPostById = async (id) => {
 };
 
 // Feed: published posts, newest first, paginated
-const listPublishedPosts = async ({ limit, offset }) => {
+// userId optional hai: guest ke liye null, taaki is_subscribed false aaye
+const listPublishedPosts = async ({ limit, offset, userId = null }) => {
   const { rows } = await query(
-    `SELECT p.id, p.title, p.slug, p.excerpt, p.cover_image_url, p.is_paid, p.published_at,
-            u.id AS author_id, u.name AS author_name, u.avatar_url AS author_avatar
+    `SELECT p.id, p.title, p.slug, p.cover_image_url, p.is_paid, p.published_at,
+            u.id AS author_id, u.name AS author_name, u.avatar_url AS author_avatar,
+
+            -- Stored excerpt khali ho to content se banao.
+            -- Paid post par sirf 120 chars: poora content feed mein kabhi nahi.
+            COALESCE(
+              NULLIF(BTRIM(p.excerpt), ''),
+              LEFT(p.content, CASE WHEN p.is_paid THEN 120 ELSE 280 END)
+            ) AS excerpt,
+
+            EXISTS (
+              SELECT 1 FROM subscriptions s
+              WHERE s.subscriber_id = $3::uuid
+                AND s.author_id = u.id
+                AND s.status = 'active'
+            ) AS is_subscribed
      FROM posts p
      JOIN users u ON u.id = p.author_id
      WHERE p.status = 'published'
      ORDER BY p.published_at DESC
      LIMIT $1 OFFSET $2`,
-    [limit, offset]
+    [limit, offset, userId]
   );
   return rows;
 };
