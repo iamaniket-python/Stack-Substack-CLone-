@@ -4,12 +4,14 @@ const env = require('./config/env');
 const { pool } = require('./config/db');
 const { initSocket } = require('./socket');
 const logger = require('./utils/logger');
+const { startStoryCleanupJob } = require('./jobs/cleanupExpiredStories');
 
 const httpServer = http.createServer(app);
 initSocket(httpServer);
 
 const server = httpServer.listen(env.port, () => {
   logger.info(`Server running in ${env.nodeEnv} mode on port ${env.port}`);
+  startStoryCleanupJob();
 });
 
 process.on('unhandledRejection', (err) => {

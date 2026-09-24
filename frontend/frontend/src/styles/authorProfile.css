@@ -135,3 +135,20 @@
   margin-bottom: 24px;
   color: var(--color-text);
 }
+
+/* add to authorProfile.css */
+.author-message-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s var(--ease-soft);
+}
+.author-message-btn:hover {
+  box-shadow: var(--shadow-md);
+}

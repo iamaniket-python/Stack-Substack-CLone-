@@ -2,14 +2,15 @@
   max-width: 1080px;
   margin: 0 auto;
   padding: 56px 24px;
+  animation: fadeUp 0.5s var(--ease);
 }
 
 .feed-page h1 {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
   margin-bottom: 36px;
   color: var(--color-text);
-  letter-spacing: -0.6px;
+  letter-spacing: -0.7px;
 }
 
 .feed-grid {
@@ -23,16 +24,18 @@
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
 }
 
 .post-card:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-3px);
+  transform: translateY(-5px);
 }
 
 .post-card-image {
@@ -47,14 +50,14 @@
 
 .post-card-paid-badge {
   display: inline-block;
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-  font-size: 10.5px;
+  background: linear-gradient(135deg, var(--color-teal), #5fe0cd);
+  color: #fff;
+  font-size: 10px;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-full);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   margin-bottom: 12px;
 }
 
@@ -103,27 +106,30 @@
 }
 
 .pagination button {
-  padding: 10px 22px;
+  padding: 11px 24px;
   border: none;
   border-radius: var(--radius-full);
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(10px);
   box-shadow: var(--shadow-sm);
   font-weight: 600;
   font-size: 13.5px;
+  color: var(--color-text);
   cursor: pointer;
-  transition: box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+  transition: box-shadow 0.3s var(--ease-soft), background 0.3s var(--ease-soft), transform 0.3s var(--ease);
 }
 
 .pagination button:hover:not(:disabled) {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glow);
   background: var(--color-primary-soft);
   color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  box-shadow: none;
+  transform: none;
 }
 
 .feed-loading,

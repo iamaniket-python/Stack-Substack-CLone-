@@ -1,7 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { logoutUser } from '../features/auth/authSlice';
+import { connectSocket, disconnectSocket } from '../socket/socketClient';
+import NotificationBell from './NotificationBell';
 import '../styles/navbar.css';
 
 const Navbar = () => {
@@ -9,8 +12,16 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) connectSocket();
+    return () => {
+      if (!user) disconnectSocket();
+    };
+  }, [user]);
+
   const handleLogout = async () => {
     await dispatch(logoutUser());
+    disconnectSocket();
     toast.success('Logged out');
     navigate('/login');
   };
@@ -18,7 +29,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-logo">
-        Substack
+        Stack
       </Link>
 
       <div className="navbar-links">
@@ -28,6 +39,7 @@ const Navbar = () => {
           <>
             <Link to="/write">Write</Link>
             <Link to="/dashboard">Dashboard</Link>
+            <NotificationBell />
             <Link to={`/author/${user.id}`} className="navbar-avatar">
               {user.avatar_url ? (
                 <img src={user.avatar_url} alt={user.name} />
@@ -45,6 +57,7 @@ const Navbar = () => {
             <Link to="/register" className="navbar-cta">
               Sign up
             </Link>
+            <Link to="/messages">Messages</Link>
           </>
         )}
       </div>

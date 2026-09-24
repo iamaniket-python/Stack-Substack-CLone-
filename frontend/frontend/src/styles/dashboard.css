@@ -2,9 +2,9 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 56px 24px;
+  animation: fadeUp 0.5s var(--ease);
 }
 
-/* Header */
 .dashboard-header {
   display: flex;
   align-items: center;
@@ -19,27 +19,32 @@
   letter-spacing: -0.6px;
 }
 
+.dashboard-subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
 .dash-new-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, var(--color-primary), #7b7ff5);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
   color: #fff;
-  padding: 12px 24px;
+  padding: 13px 26px;
   border-radius: var(--radius-full);
   text-decoration: none;
   font-weight: 700;
   font-size: 14px;
-  box-shadow: 0 4px 14px rgba(91, 95, 239, 0.35);
-  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .dash-new-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(91, 95, 239, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(99, 102, 241, 0.35);
 }
 
-/* Stat cards */
 .dash-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -49,15 +54,16 @@
 
 .dash-stat-card {
   position: relative;
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 24px 22px;
+  padding: 26px 24px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   overflow: hidden;
-  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
 }
 
 .dash-stat-card::before {
@@ -66,21 +72,21 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), #9b9ef7);
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-violet));
 }
 
 .dash-stat-card:nth-child(2)::before {
-  background: linear-gradient(90deg, #b8bcc9, #d4d7e0);
+  background: linear-gradient(90deg, #c7cadb, #e0e2ee);
 }
 
 .dash-stat-card:nth-child(3)::before {
-  background: linear-gradient(90deg, var(--color-accent), #5fe0cd);
+  background: linear-gradient(90deg, var(--color-teal), #5fe0cd);
 }
 
 .dash-stat-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .dash-stat-value {
@@ -91,20 +97,20 @@
 }
 
 .dash-stat-label {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-text-muted);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
-/* Filters */
 .dash-filters {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 28px;
   padding: 5px;
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(10px);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
   width: fit-content;
@@ -119,7 +125,7 @@
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
 .dash-filter-btn:hover:not(.active) {
@@ -127,11 +133,11 @@
 }
 
 .dash-filter-btn.active {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), #7b7ff5);
   color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
 }
 
-/* Post list */
 .dash-list {
   display: flex;
   flex-direction: column;
@@ -142,16 +148,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
   padding: 20px 24px;
-  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
 }
 
 .dash-row:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .dash-row-main {
@@ -170,7 +177,7 @@
 .dash-status {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -188,21 +195,21 @@
 }
 
 .dash-status-published {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
+  background: var(--color-teal-soft);
+  color: var(--color-teal);
 }
 
 .dash-status-published::before {
-  background: var(--color-accent);
+  background: var(--color-teal);
 }
 
 .dash-status-draft {
   background: #f2f0ff;
-  color: #8b8fa8;
+  color: #9294b8;
 }
 
 .dash-status-draft::before {
-  background: #8b8fa8;
+  background: #9294b8;
 }
 
 .dash-paid-tag {
@@ -225,7 +232,7 @@
 .dash-row-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -234,9 +241,9 @@
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 600;
-  padding: 8px 14px;
+  padding: 9px 16px;
   border-radius: var(--radius-full);
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
 .dash-action-link:hover {
@@ -251,22 +258,22 @@
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 14px;
+  padding: 9px 16px;
   border-radius: var(--radius-full);
-  transition: background 0.2s var(--ease);
+  transition: background 0.3s var(--ease-soft);
 }
 
 .dash-action-delete:hover {
   background: #fdeceb;
 }
 
-/* Empty state */
 .feed-empty {
   text-align: center;
   padding: 70px 24px;
   color: var(--color-text-faint);
   font-size: 15px;
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(10px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }

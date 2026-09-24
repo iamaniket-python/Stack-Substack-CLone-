@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { getAuthorProfileAPI, getAuthorPostsAPI } from '../features/posts/postAPI';
@@ -79,7 +79,6 @@ const AuthorProfile = () => {
     }
   };
 
-  // Opens Razorpay checkout, and on success calls our backend to verify + activate
   const handlePaidSubscribe = async () => {
     setActionBusy(true);
     try {
@@ -102,7 +101,7 @@ const AuthorProfile = () => {
             });
             toast.success('Payment successful — subscribed!');
             setSubscribed(true);
-            loadProfile(); // refresh subscription details (tier, expiry)
+            loadProfile();
           } catch (err) {
             toast.error('Payment verification failed');
           }
@@ -154,6 +153,9 @@ const AuthorProfile = () => {
                 <button onClick={handleUnsubscribe} disabled={actionBusy} className="author-unsub-btn">
                   Unsubscribe
                 </button>
+                <Link to={`/messages?user=${id}`} className="author-message-btn">
+                  Message
+                </Link>
               </div>
             ) : (
               <div className="author-subscribe-buttons">
@@ -163,6 +165,9 @@ const AuthorProfile = () => {
                 <button onClick={handlePaidSubscribe} disabled={actionBusy} className="author-paid-btn">
                   Subscribe ₹199/mo
                 </button>
+                <Link to={`/messages?user=${id}`} className="author-message-btn">
+                  Message
+                </Link>
               </div>
             )}
           </div>
@@ -176,7 +181,10 @@ const AuthorProfile = () => {
         ) : (
           <div className="feed-grid">
             {posts.map((post) => (
-              <PostCard key={post.id} post={{ ...post, author_name: info.name, author_avatar: info.avatar_url }} />
+              <PostCard
+                key={post.id}
+                post={{ ...post, author_name: info.name, author_avatar: info.avatar_url }}
+              />
             ))}
           </div>
         )}

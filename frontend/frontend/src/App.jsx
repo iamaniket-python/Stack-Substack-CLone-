@@ -9,6 +9,7 @@ import WritePost from './pages/WritePost';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import AuthorProfile from './pages/AuthorProfile';
+import Messages from './pages/Messages';
 
 function App() {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ function App() {
         <Route path="/write/:id" element={<WritePost />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/author/:id" element={<AuthorProfile />} />
+        <Route path="/messages" element={<Messages />} />
         </Route>
       </Routes>
     </>

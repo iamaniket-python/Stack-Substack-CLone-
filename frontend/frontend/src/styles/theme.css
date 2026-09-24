@@ -1,31 +1,35 @@
 :root {
-  --color-bg: #f9fafb;
+  --color-bg: #f4f5fb;
   --color-surface: #ffffff;
-  --color-text: #1e2130;
-  --color-text-muted: #767b8c;
-  --color-text-faint: #a3a8b8;
+  --color-surface-glass: rgba(255, 255, 255, 0.72);
+  --color-text: #1c1d2e;
+  --color-text-muted: #767a90;
+  --color-text-faint: #a6a9bd;
 
-  --color-primary: #5b5fef;
-  --color-primary-hover: #4a4ed9;
-  --color-primary-soft: #eef0fe;
+  --color-primary: #6366f1;
+  --color-primary-hover: #5254d6;
+  --color-primary-soft: #eef0ff;
 
-  --color-accent: #14b8a6;
-  --color-accent-soft: #e6f9f7;
+  --color-violet: #a855f7;
+  --color-teal: #14b8a6;
+  --color-teal-soft: #e6faf7;
 
-  --color-border: #eceef2;
+  --color-border: #ececf5;
 
   --font-sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(30, 33, 48, 0.04);
-  --shadow-md: 0 4px 16px rgba(30, 33, 48, 0.06);
-  --shadow-lg: 0 12px 32px rgba(30, 33, 48, 0.1);
+  --shadow-sm: 0 2px 8px rgba(28, 29, 46, 0.04);
+  --shadow-md: 0 8px 24px rgba(28, 29, 46, 0.07);
+  --shadow-lg: 0 20px 48px rgba(28, 29, 46, 0.12);
+  --shadow-glow: 0 8px 28px rgba(99, 102, 241, 0.25);
 
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -35,10 +39,31 @@
 body {
   font-family: var(--font-sans);
   background: var(--color-bg);
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.08), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(168, 85, 247, 0.07), transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(20, 184, 166, 0.06), transparent 40%);
+  background-attachment: fixed;
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  transition: color 0.2s var(--ease);
+  transition: color 0.25s var(--ease-soft);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
