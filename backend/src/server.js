@@ -1,18 +1,24 @@
+const http = require('http');
 const app = require('./app');
 const env = require('./config/env');
 const { pool } = require('./config/db');
+const { initSocket } = require('./socket');
+const logger = require('./utils/logger');
 
-const server = app.listen(env.port, () => {
-  console.log(`Server running in ${env.nodeEnv} mode on port ${env.port}`);
+const httpServer = http.createServer(app);
+initSocket(httpServer);
+
+const server = httpServer.listen(env.port, () => {
+  logger.info(`Server running in ${env.nodeEnv} mode on port ${env.port}`);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED REJECTION! Shutting down...', err);
+  logger.error('UNHANDLED REJECTION! Shutting down...', err);
   server.close(() => process.exit(1));
 });
 
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM received. Closing server gracefully...');
+  logger.info('SIGTERM received. Closing server gracefully...');
   server.close(async () => {
     await pool.end();
     process.exit(0);

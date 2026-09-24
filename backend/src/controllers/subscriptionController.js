@@ -1,9 +1,11 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { notify } = require('../services/notificationService');
 const { findUserById } = require('../models/userModel');
 const {
   findSubscription,
   createOrReactivateSubscription,
+  
   cancelSubscription,
   listSubscriptionsForUser,
   listSubscribersForAuthor,
@@ -30,6 +32,14 @@ const subscribe = asyncHandler(async (req, res) => {
     subscriberId: req.userId,
     authorId,
     tier: 'free',
+  });
+
+  await notify({
+    recipientId: authorId,
+    actorId: req.userId,
+    type: 'new_subscriber',
+    entityId: subscription.id,
+    message: 'subscribed to you',
   });
 
   res.status(201).json({ success: true, data: { subscription } });

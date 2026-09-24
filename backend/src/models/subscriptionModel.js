@@ -76,6 +76,14 @@ const countActiveSubscribers = async (authorId) => {
   return rows[0].count;
 };
 
+const getSubscribedAuthorIds = async (subscriberId) => {
+  const { rows } = await query(
+    `SELECT author_id FROM subscriptions WHERE subscriber_id = $1 AND status = 'active'`,
+    [subscriberId]
+  );
+  return rows.map((r) => r.author_id);
+};
+
 module.exports = {
   hasActivePaidSubscription,
   findSubscription,
@@ -84,4 +92,5 @@ module.exports = {
   listSubscriptionsForUser,
   listSubscribersForAuthor,
   countActiveSubscribers,
+  getSubscribedAuthorIds,
 };

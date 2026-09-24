@@ -2,10 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { findPostById } = require('../models/postModel');
 const { findLike, addLike, removeLike, countLikesForPost } = require('../models/likeModel');
+const { notify } = require('../services/notificationService');
 
-// Single endpoint that flips the state — simpler for the frontend than
-// separate like/unlike routes, and avoids a race where the client's local
-// state disagrees with the server on which action to call.
+
 const toggle = asyncHandler(async (req, res) => {
   const { postId } = req.params;
 
@@ -18,6 +17,16 @@ const toggle = asyncHandler(async (req, res) => {
     await removeLike(postId, req.userId);
   } else {
     await addLike(postId, req.userId);
+
+    if (post.author_id !== req.userId) {
+      await notify({
+        recipientId: post.author_id,
+        actorId: req.userId,
+        type: 'new_like',
+        entityId: postId,
+        message: 'liked your post',
+      });
+    }
   }
 
   const count = await countLikesForPost(postId);

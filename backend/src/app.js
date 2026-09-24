@@ -32,6 +32,8 @@ app.use('/api/likes', require('./routes/likeRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/search', require('./routes/searchRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
 
 app.use('/api', apiLimiter);
