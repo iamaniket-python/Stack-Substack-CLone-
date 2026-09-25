@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const env = require('./config/env');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const { apiLimiter } = require('./middlewares/rateLimiter');
+const profileRoutes = require("./routes/profile.routes");
 const app = express();
 
 app.use(helmet());
@@ -35,6 +36,8 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/stories', require('./routes/storyRoutes'));
+app.use("/api/profile", profileRoutes);
+
 
 
 app.use('/api', apiLimiter);

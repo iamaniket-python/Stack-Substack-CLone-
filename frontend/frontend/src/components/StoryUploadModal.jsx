@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { createStoryAPI } from '../features/stories/storyAPI';
 
@@ -7,6 +7,23 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
   const [preview, setPreview] = useState(null);
   const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  // Revoke the blob URL whenever it's replaced or the modal unmounts —
+  // otherwise every selected image leaks memory for the tab's lifetime
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  // Close on Escape, same as clicking the overlay
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape' && !uploading) onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose, uploading]);
 
   const handleFileSelect = (e) => {
     const selected = e.target.files[0];
@@ -22,7 +39,10 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
     }
 
     setFile(selected);
-    setPreview(URL.createObjectURL(selected));
+    setPreview((prevUrl) => {
+      if (prevUrl) URL.revokeObjectURL(prevUrl); // drop the old blob before creating a new one
+      return URL.createObjectURL(selected);
+    });
   };
 
   const handleUpload = async () => {
@@ -49,11 +69,11 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={() => !uploading && onClose()}>
       <div className="story-upload-modal" onClick={(e) => e.stopPropagation()}>
         <div className="new-msg-header">
           <h3>Add to story</h3>
-          <button onClick={onClose} className="modal-close-btn">✕</button>
+          <button onClick={onClose} className="modal-close-btn" disabled={uploading}>✕</button>
         </div>
 
         {preview ? (
@@ -61,14 +81,26 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
         ) : (
           <label className="story-upload-placeholder">
             <span>📷 Choose an image</span>
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileSelect} hidden />
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileSelect}
+              disabled={uploading}
+              hidden
+            />
           </label>
         )}
 
         {preview && (
-          <label className="story-upload-change">
+          <label className={`story-upload-change ${uploading ? 'disabled' : ''}`}>
             Change image
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileSelect} hidden />
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileSelect}
+              disabled={uploading}
+              hidden
+            />
           </label>
         )}
 
@@ -78,6 +110,7 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           maxLength={280}
+          disabled={uploading}
         />
 
         <button className="story-upload-btn" onClick={handleUpload} disabled={uploading || !file}>

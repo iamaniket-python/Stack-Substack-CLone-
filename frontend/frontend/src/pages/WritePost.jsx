@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+// const uploadToCloudinary = require('../utils/uploadToCloudinary');
 import {
   createPostAPI,
   updatePostAPI,

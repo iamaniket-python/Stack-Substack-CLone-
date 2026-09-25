@@ -1,6 +1,6 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
-const uploadToCloudinary = require('../utils/uploadToCloudinary');
+const { uploadToCloudinary } = require('../utils/uploadToCloudinary');
 const { updateUserAvatar } = require('../models/userModel');
 
 const uploadCoverImage = asyncHandler(async (req, res) => {

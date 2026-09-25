@@ -216,3 +216,51 @@
   flex-direction: column;
   gap: 16px;
 }
+
+.comment-section {
+  width: 100%;
+  overflow: hidden; /* card ke bahar kuch bhi bleed na ho */
+}
+
+.comment-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.comment-input-row input {
+  flex: 1 1 auto;
+  min-width: 0; /* flex item ko content ke hisaab se overflow karne se roke */
+  padding: 9px 12px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s var(--ease-soft);
+}
+
+.comment-input-row input:focus {
+  border-color: var(--color-primary);
+}
+
+.comment-input-row button {
+  flex: 0 0 auto; /* button apni natural width le, shrink na ho na overflow kare */
+  padding: 9px 16px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s var(--ease-soft);
+}
+
+.comment-input-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

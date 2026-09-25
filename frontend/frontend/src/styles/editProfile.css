@@ -1,0 +1,192 @@
+/* src/styles/editProfile.css */
+
+.edit-profile-modal {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 26px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg);
+  animation: editProfilePopIn 0.28s var(--ease);
+}
+
+@keyframes editProfilePopIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.edit-profile-modal .new-msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.edit-profile-modal .new-msg-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+/* --- Avatar picker --- */
+
+.edit-avatar-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 22px;
+  transition: opacity 0.2s var(--ease-soft);
+}
+
+.edit-avatar-picker:hover {
+  opacity: 0.85;
+}
+
+.edit-avatar-preview,
+.edit-avatar-picker .avatar-fallback {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-primary), var(--color-violet), var(--color-teal)) border-box;
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.25s var(--ease);
+}
+
+.edit-avatar-picker:hover .edit-avatar-preview,
+.edit-avatar-picker:hover .avatar-fallback {
+  transform: scale(1.04);
+}
+
+.edit-avatar-picker .avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.edit-avatar-change-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 0.01em;
+}
+
+/* --- Fields --- */
+
+.edit-field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.edit-field-label input,
+.edit-field-label textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-text);
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-teal-soft);
+  background: rgba(255, 255, 255, 0.7);
+  outline: none;
+  transition: border-color 0.2s var(--ease-soft), box-shadow 0.2s var(--ease-soft), background 0.2s var(--ease-soft);
+}
+
+.edit-field-label input:focus,
+.edit-field-label textarea:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(230, 132, 87, 0.15);
+}
+
+.edit-field-label input:disabled,
+.edit-field-label textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-field-label textarea {
+  resize: none;
+  line-height: 1.4;
+}
+
+/* --- Save button --- */
+
+.edit-profile-modal .story-upload-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease-soft), opacity 0.2s var(--ease-soft);
+}
+
+.edit-profile-modal .story-upload-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(230, 132, 87, 0.4);
+}
+
+.edit-profile-modal .story-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Close button --- */
+
+.edit-profile-modal .modal-close-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-teal-soft);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s var(--ease-soft), color 0.2s var(--ease-soft);
+}
+
+.edit-profile-modal .modal-close-btn:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}

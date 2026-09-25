@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { registerAPI, loginAPI, logoutAPI, getMeAPI } from './authAPI';
 import { setAccessToken } from '../../api/axiosInstance';
+import { updateProfileAPI } from '../users/userAPI';
 
 export const registerUser = createAsyncThunk(
   'auth/register',
@@ -98,9 +99,25 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.user = null;
         state.initialized = true;
+      })
+      // NEW — chained onto the same builder, not a separate call
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = { ...state.user, ...action.payload };
       });
   },
 });
+
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const { data } = await updateProfileAPI(formData);
+      return data.data.user;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
 
 export const { clearAuthError } = authSlice.actions;
 export default authSlice.reducer;

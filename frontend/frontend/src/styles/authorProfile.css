@@ -152,3 +152,229 @@
 .author-message-btn:hover {
   box-shadow: var(--shadow-md);
 }
+
+.edit-avatar-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.edit-avatar-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.edit-avatar-change-label {
+  font-size: 0.85rem;
+  color: var(--color-accent);
+}
+.edit-field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+.edit-field-label input,
+.edit-field-label textarea {
+  font-family: inherit;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+/* ---------- Profile Tabs ---------- */
+.profile-tabs-section {
+  max-width: 900px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+}
+
+.profile-tabs-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.profile-tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
+}
+
+.profile-tab-btn:hover {
+  color: var(--color-text);
+}
+
+.profile-tab-btn.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ---------- Activity / Replies list ---------- */
+.profile-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-activity-item {
+  display: block;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s var(--ease-soft), box-shadow 0.2s var(--ease-soft);
+}
+
+.profile-activity-item:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-activity-type {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary-hover);
+  margin-bottom: 4px;
+}
+
+.profile-activity-title {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.profile-activity-snippet {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.profile-activity-time {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Subscriptions list ---------- */
+.profile-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s var(--ease-soft);
+}
+
+.profile-sub-item:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+}
+
+.profile-sub-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.profile-sub-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-sub-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.profile-sub-meta {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+/* ---------- Profile Tabs — mobile-friendly scroll ---------- */
+.profile-tabs-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  /* Scrollbar hide — Firefox */
+  scrollbar-width: none;
+}
+
+/* Scrollbar hide — Chrome/Safari/Edge */
+.profile-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;           /* NEW — button apni jagah squeeze na ho, poora text dikhe */
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
+}
+
+.profile-tab-btn:hover {
+  color: var(--color-text);
+}
+
+.profile-tab-btn.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Mobile: thoda tight spacing taaki zyada tabs fit hon bina zyada scroll kiye */
+@media (max-width: 600px) {
+  .profile-tabs-section {
+    padding: 0 14px;
+  }
+
+  .profile-tab-btn {
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+}

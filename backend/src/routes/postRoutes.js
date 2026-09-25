@@ -14,7 +14,7 @@ const {
 
 const router = express.Router();
 
-router.get('/', feed);
+router.get('/', optionalAuth, feed);       
 router.get('/mine', protect, myPosts);
 router.get('/:slug', optionalAuth, getBySlug);
 

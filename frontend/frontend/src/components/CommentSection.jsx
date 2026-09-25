@@ -6,7 +6,7 @@ import { getCommentsAPI, createCommentAPI, deleteCommentAPI } from '../features/
 import CommentItem from './CommentItem';
 import '../styles/comments.css';
 
-const CommentSection = ({ postId, postAuthorId }) => {
+const CommentSection = ({ postId, postAuthorId, onCountChange }) => { 
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [comments, setComments] = useState([]);
@@ -19,12 +19,15 @@ const CommentSection = ({ postId, postAuthorId }) => {
       const { data } = await getCommentsAPI(postId);
       setComments(data.data.comments);
       setCount(data.data.count);
+      if (onCountChange) onCountChange(data.data.count); // <-- YEH LINE NAYI HAI
     } catch {
       toast.error('Failed to load comments');
     } finally {
       setLoading(false);
     }
   };
+
+  // ... baaki poora function same rahega, kuch aur mat badalna
 
   useEffect(() => {
     loadComments();

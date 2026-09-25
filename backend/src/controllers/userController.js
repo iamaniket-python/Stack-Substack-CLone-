@@ -2,6 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { getPublicProfile } = require('../models/userModel');
 const { query } = require('../config/db');
+const { updateProfile, isUsernameTaken } = require('../models/userModel');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/uploadToCloudinary');[]
+
 const {
   listPublishedByAuthorPaginated,
   countPublishedByAuthor,
@@ -42,4 +45,51 @@ const searchUsers = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { users: rows } });
 });
 
-module.exports = { getProfile, getProfilePosts, searchUsers };
+const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
+
+const updateMyProfile = asyncHandler(async (req, res) => {
+  const { name, username, bio } = req.body;
+  const updates = {};
+
+  if (name !== undefined) {
+    if (!name.trim()) throw new ApiError(400, 'Name cannot be empty');
+    updates.name = name.trim().slice(0, 100);
+  }
+
+  if (username !== undefined) {
+    const normalized = username.trim().toLowerCase();
+    if (!USERNAME_REGEX.test(normalized)) {
+      throw new ApiError(400, 'Username must be 3-30 characters: lowercase letters, numbers, underscore only');
+    }
+    const taken = await isUsernameTaken(normalized, req.userId);
+    if (taken) throw new ApiError(409, 'Username is already taken');
+    updates.username = normalized;
+  }
+
+  if (bio !== undefined) {
+    updates.bio = bio.slice(0, 280); // keep in sync with frontend maxLength
+  }
+
+  if (req.file) {
+    // Fetch current avatar so we can delete it AFTER the new upload succeeds —
+    // never delete-then-upload, or a failed upload leaves the user with no avatar at all.
+    const { rows } = await query('SELECT avatar_url FROM users WHERE id = $1', [req.userId]);
+    const oldAvatarUrl = rows[0]?.avatar_url;
+
+    const result = await uploadToCloudinary(req.file.buffer, 'substack-clone/avatars');
+    updates.avatar_url = result.secure_url;
+
+    if (oldAvatarUrl) {
+      deleteFromCloudinary(oldAvatarUrl); // fire-and-forget, doesn't block the response
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    throw new ApiError(400, 'No fields to update');
+  }
+
+  const updatedUser = await updateProfile(req.userId, updates);
+  res.json({ success: true, data: { user: updatedUser } });
+});
+
+module.exports = { getProfile, getProfilePosts, searchUsers, updateMyProfile };

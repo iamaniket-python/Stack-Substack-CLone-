@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { Heart, MessageCircle } from "lucide-react";
-// import api from "../api/axios";
+import { Heart, MessageCircle, X } from "lucide-react";
+import axiosInstance from '../api/axiosInstance';
+import CommentSection from './CommentSection';
 import "../styles/feed.css";
 
 const timeAgo = (date) => {
@@ -13,12 +14,7 @@ const timeAgo = (date) => {
   return `${Math.floor(s / 86400)} din pehle`;
 };
 
-// ASSUMED endpoints: /posts/:id/like (POST = like, DELETE = unlike).
-// Tumhare likes wale step mein alag ho to sirf yahi function badalna.
-const sendLike = (postId, wasLiked) =>
-  wasLiked
-    ? api.delete(`/posts/${postId}/like`)
-    : api.post(`/posts/${postId}/like`);
+const sendLike = (postId) => axiosInstance.post(`/likes/post/${postId}`);
 
 const PostCard = ({ post }) => {
   const user = useSelector((state) => state.auth.user);
@@ -27,24 +23,26 @@ const PostCard = ({ post }) => {
   const [subscribed, setSubscribed] = useState(!!post.is_subscribed);
   const [busy, setBusy] = useState(false);
 
-  // Like state (feed API se is_liked / like_count aane chahiye)
   const [liked, setLiked] = useState(Boolean(post.is_liked));
   const [likeCount, setLikeCount] = useState(Number(post.like_count) || 0);
   const [liking, setLiking] = useState(false);
 
-  // Guard: guest (user null) par undefined === undefined true na ho jaye
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentCount, setCommentCount] = useState(Number(post.comment_count) || 0); // NEW
+
   const isOwnPost = Boolean(user?.id) && user.id === post.author_id;
 
   const toggleSubscribe = async () => {
     if (busy) return;
     const prev = subscribed;
-    setSubscribed(!prev); // optimistic update
+    setSubscribed(!prev);
     setBusy(true);
     try {
-      if (prev) await api.delete(`/subscriptions/${post.author_id}`);
-      else await api.post(`/subscriptions/${post.author_id}`);
+      if (prev) await axiosInstance.delete(`/subscriptions/${post.author_id}`);
+      else await axiosInstance.post(`/subscriptions/${post.author_id}`);
     } catch {
-      setSubscribed(prev); // fail hua to rollback
+      setSubscribed(prev);
       toast.error("Subscribe nahi ho paya, dobara try karo");
     } finally {
       setBusy(false);
@@ -52,18 +50,16 @@ const PostCard = ({ post }) => {
   };
 
   const handleLike = async () => {
-    if (!user) return navigate("/login"); // guest ko login par bhejo
-    if (liking) return; // double click guard
+    if (!user) return navigate("/login");
+    if (liking) return;
 
     const prev = { liked, likeCount };
     setLiking(true);
-    // optimistic update: turant UI badlo, fail ho to wapas
     setLiked(!prev.liked);
     setLikeCount(Math.max(0, prev.likeCount + (prev.liked ? -1 : 1)));
 
     try {
-      const res = await sendLike(post.id, prev.liked);
-      // Agar backend liked/like_count wapas deta hai to server ki value maan lo
+      const res = await sendLike(post.id);
       const d = res?.data?.data;
       if (d && typeof d.liked === "boolean") setLiked(d.liked);
       if (d && d.like_count != null) setLikeCount(Number(d.like_count));
@@ -76,24 +72,31 @@ const PostCard = ({ post }) => {
     }
   };
 
+  const handleImageClick = (e) => {
+    e.preventDefault();
+    setLightboxOpen(true);
+  };
+
+  const handleCommentClick = (e) => {
+    e.preventDefault();
+    setCommentsOpen((prev) => !prev);
+  };
+
   const initial = post.author_name?.[0]?.toUpperCase() || "?";
   const hasAuthorId = Boolean(post.author_id);
 
-  // excerpt na aaye to content ka shuru; paid post par sirf 120 char teaser
   const excerptText =
     post.excerpt || (post.content ? post.content.slice(0, post.is_paid ? 120 : 280) : "");
 
   const avatar = post.author_avatar ? (
     <img src={post.author_avatar} alt="" className="post-card-author-avatar" />
   ) : (
-    // avatar null ho to broken image ki jagah initial dikhao
     <span className="post-card-author-avatar post-card-author-avatar--fallback">
       {initial}
     </span>
   );
 
   return (
-    // <article>, <Link> nahi: button ko <a> ke andar rakhna invalid HTML hai
     <article className="post-card">
       <div className="post-card-header">
         {hasAuthorId ? (
@@ -114,7 +117,6 @@ const PostCard = ({ post }) => {
               <span className="post-card-author-name">{post.author_name}</span>
             )}
 
-            {/* Apni post par Subscribe nahi; guest ko login par bhejo */}
             {!isOwnPost &&
               hasAuthorId &&
               (user ? (
@@ -135,25 +137,25 @@ const PostCard = ({ post }) => {
           <span className="post-card-time">{timeAgo(post.published_at)}</span>
         </div>
       </div>
-
-      {/* Cover + content clickable, post detail kholta hai */}
-      <Link to={`/post/${post.slug}`} className="post-card-link">
-        {post.cover_image_url && (
+      <Link  className="post-card-link">
+        <div className="post-card-body">
+          {post.is_paid && <span className="post-card-paid-badge">Paid</span>}
+          {excerptText && <p className="post-card-excerpt">{excerptText}</p>}
+        </div>
+      </Link>
+      {post.cover_image_url && (
+         <div className="post-card-media" onClick={handleImageClick}>
           <img
             src={post.cover_image_url}
             alt=""
             className="post-card-image"
             loading="lazy"
           />
-        )}
-
-        <div className="post-card-body">
-          {post.is_paid && <span className="post-card-paid-badge">Paid</span>}
-          {excerptText && <p className="post-card-excerpt">{excerptText}</p>}
         </div>
-      </Link>
+      )}
 
-      {/* Footer Link ke BAHAR hai: button ke click par post page nahi khulna chahiye */}
+     
+
       <div className="post-card-footer">
         <button
           type="button"
@@ -167,15 +169,45 @@ const PostCard = ({ post }) => {
           <span>{likeCount}</span>
         </button>
 
-        <Link
-          to={`/post/${post.slug}#comments`}
-          className="post-card-action"
-          aria-label="Comments"
+        <button
+          type="button"
+          className={`post-card-action ${commentsOpen ? "is-active" : ""}`}
+          onClick={handleCommentClick}
+          aria-expanded={commentsOpen}
+          aria-label="Toggle comments"
         >
           <MessageCircle />
-          <span>{Number(post.comment_count) || 0}</span>
-        </Link>
+          <span>{commentCount}</span>
+        </button>
       </div>
+
+      {commentsOpen && (
+        <div className="post-card-comments">
+          <CommentSection
+            postId={post.id}
+            postAuthorId={post.author_id}
+            onCountChange={setCommentCount}
+          />
+        </div>
+      )}
+
+      {lightboxOpen && (
+        <div className="image-lightbox-overlay" onClick={() => setLightboxOpen(false)}>
+          <button
+            className="image-lightbox-close"
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Close"
+          >
+            <X />
+          </button>
+          <img
+            src={post.cover_image_url}
+            alt=""
+            className="image-lightbox-img"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </article>
   );
 };

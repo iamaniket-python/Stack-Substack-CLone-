@@ -40,4 +40,44 @@ const updateUserAvatar = async (userId, avatarUrl) => {
   return rows[0];
 };
 
-module.exports = { createUser, findUserByEmail, findUserById ,getPublicProfile ,updateUserAvatar };
+const isUsernameTaken = async (username, excludeUserId) => {
+  const { rows } = await query(
+    `SELECT id FROM users WHERE LOWER(username) = LOWER($1) AND id != $2`,
+    [username, excludeUserId]
+  );
+  return rows.length > 0;
+};
+
+const updateProfile = async (userId, { name, username, bio, avatar_url }) => {
+  // Built dynamically so we only touch columns that were actually provided —
+  // e.g. avatar_url stays untouched if the user didn't upload a new image.
+  const fields = [];
+  const values = [];
+  let i = 1;
+
+  if (name !== undefined) { fields.push(`name = $${i++}`); values.push(name); }
+  if (username !== undefined) { fields.push(`username = $${i++}`); values.push(username); }
+  if (bio !== undefined) { fields.push(`bio = $${i++}`); values.push(bio); }
+  if (avatar_url !== undefined) { fields.push(`avatar_url = $${i++}`); values.push(avatar_url); }
+
+  fields.push(`updated_at = NOW()`);
+  values.push(userId);
+
+  const { rows } = await query(
+    `UPDATE users SET ${fields.join(', ')} WHERE id = $${i} 
+     RETURNING id, name, username, email, bio, avatar_url`,
+    values
+  );
+  return rows[0];
+};
+
+
+module.exports = {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  getPublicProfile,
+  updateUserAvatar,
+  isUsernameTaken,
+  updateProfile,
+};

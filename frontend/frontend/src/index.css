@@ -50,13 +50,32 @@
   }
 }
 
+/* NEW — koi bhi child element viewport se chauda ho, page horizontally scroll na ho */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
+  overflow-x: hidden;   /* NEW */
+  max-width: 100vw;     /* NEW */
 }
 
 #root {
   min-height: 100svh;
+  overflow-x: hidden;   /* NEW */
 }
+
+/* NEW — koi image accidentally apne container se bahar na chali jaye */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 h1,
 h2 {
   font-family: var(--heading);

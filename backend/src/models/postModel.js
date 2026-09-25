@@ -36,8 +36,6 @@ const listPublishedPosts = async ({ limit, offset, userId = null }) => {
     `SELECT p.id, p.title, p.slug, p.cover_image_url, p.is_paid, p.published_at,
             u.id AS author_id, u.name AS author_name, u.avatar_url AS author_avatar,
 
-            -- Stored excerpt khali ho to content se banao.
-            -- Paid post par sirf 120 chars: poora content feed mein kabhi nahi.
             COALESCE(
               NULLIF(BTRIM(p.excerpt), ''),
               LEFT(p.content, CASE WHEN p.is_paid THEN 120 ELSE 280 END)
@@ -48,7 +46,23 @@ const listPublishedPosts = async ({ limit, offset, userId = null }) => {
               WHERE s.subscriber_id = $3::uuid
                 AND s.author_id = u.id
                 AND s.status = 'active'
-            ) AS is_subscribed
+            ) AS is_subscribed,
+
+            EXISTS (
+              SELECT 1 FROM likes l
+              WHERE l.post_id = p.id
+                AND l.user_id = $3::uuid
+            ) AS is_liked,
+
+            (
+              SELECT COUNT(*)::int FROM likes l WHERE l.post_id = p.id
+            ) AS like_count,
+
+            -- NEW
+            (
+              SELECT COUNT(*)::int FROM comments c WHERE c.post_id = p.id
+            ) AS comment_count
+
      FROM posts p
      JOIN users u ON u.id = p.author_id
      WHERE p.status = 'published'

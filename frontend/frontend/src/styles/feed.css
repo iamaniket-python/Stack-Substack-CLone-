@@ -308,3 +308,128 @@
   }
   .post-card:hover { transform: none; }
 }
+/* ---------- Media (cover image ka wrapper) ---------- */
+.post-card-media {
+  cursor: zoom-in;
+  overflow: hidden;
+  background: var(--color-primary-soft);
+}
+
+.post-card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;      /* fixed, consistent crop — masonry mein sab cards ek jaisa dikhenge */
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s var(--ease);
+}
+
+.post-card-media:hover .post-card-image {
+  transform: scale(1.03);
+}
+
+/* ---------- Lightbox ---------- */
+.image-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(43, 31, 25, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s var(--ease-soft);
+  cursor: zoom-out;
+}
+
+.image-lightbox-img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  cursor: default;
+}
+
+.image-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-soft);
+}
+
+.image-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.post-card-comments {
+  border-top: 1px solid var(--color-border);
+  padding: 14px 16px 16px;
+  animation: fadeUp 0.3s var(--ease);
+}
+
+.post-card-action.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+/* ---------- Feed layout: ab single column, one post at a time ---------- */
+.feed-masonry {
+  columns: unset;           /* masonry hata di */
+  column-gap: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 640px;         /* readable width, Medium/Substack jaisa feel */
+  margin: 0 auto;
+}
+
+@media (max-width: 1100px) {
+  .feed-masonry { max-width: 600px; }
+}
+
+@media (max-width: 800px) {
+  .feed-masonry { max-width: 560px; }
+}
+
+@media (max-width: 600px) {
+  .feed-page { padding: 20px 14px 64px; }
+  .feed-masonry {
+    max-width: 100%;
+    gap: 16px;
+  }
+}
+
+/* break-inside ab zaroori nahi (single column hai), but harmless rehne dete hain */
+.post-card {
+  /* width: 100%; already set above */
+}
+
+/* ---------- Order swap: text (excerpt) pehle, image baad mein ---------- */
+.post-card-link {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card-body {
+  order: 1;
+}
+
+.post-card-media {
+  order: 2;
+}
+
+/* Text-first layout mein image thoda zyada "reveal" jaisa lage — top corners round rahe, bottom bhi round */
+.post-card-media {
+  border-radius: 0;
+}
