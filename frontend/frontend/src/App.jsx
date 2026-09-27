@@ -13,6 +13,9 @@ import AuthorProfile from './pages/AuthorProfile';
 import Messages from './pages/Messages';
 import Search from './pages/Search';
 import ProtectedRoute from './routes/ProtectedRoute';
+import NotificationsPage from './pages/NotificationsPage';
+
+
 
 function App() {
   const dispatch = useDispatch();
@@ -42,6 +45,7 @@ function App() {
           <Route path="/write/:id" element={<WritePost />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>
     </>
