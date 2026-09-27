@@ -119,3 +119,18 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* =========================================================
+   NEW — Scrollbar ko visually hide karo (scroll functionality
+   bani rahegi, bas grey thick bar dikhna band ho jayega)
+   ========================================================= */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* old Edge/IE */
+}
+
+*::-webkit-scrollbar {
+  display: none;               /* Chrome, Edge, Safari */
+  width: 0;
+  height: 0;
+}

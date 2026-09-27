@@ -1,7 +1,7 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const cloudinary = require('../config/cloudinary');
-const uploadToCloudinary = require('../utils/uploadToCloudinary');
+const { uploadToCloudinary } = require('../utils/uploadToCloudinary');
 const {
   createStory,
   listActiveStoriesFromAuthors,
@@ -58,7 +58,6 @@ const view = asyncHandler(async (req, res) => {
     await recordView(story.id, req.userId);
   }
 
-  // Only the author gets to see the view count — same privacy model as Instagram stories
   const viewCount = story.author_id === req.userId ? await countViews(story.id) : null;
 
   res.json({ success: true, data: { story, viewCount } });

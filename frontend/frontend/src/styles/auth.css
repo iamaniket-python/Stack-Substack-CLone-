@@ -9,7 +9,6 @@
   animation: fadeIn 0.5s var(--ease-soft);
 }
 
-/* Floating decorative gradient orbs behind the card */
 .auth-page::before,
 .auth-page::after {
   content: '';
@@ -31,7 +30,7 @@
 .auth-page::after {
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(244, 169, 127, 0.30), transparent 70%); /* light peach */
+  background: radial-gradient(circle, rgba(244, 169, 127, 0.30), transparent 70%);
   bottom: -60px;
   right: -60px;
   animation-delay: 2s;
@@ -101,9 +100,10 @@
   font-size: 14.5px;
   font-family: var(--font-sans);
   color: var(--color-text);
-  background: rgba(255, 250, 247, 0.8);   /* warm off-white (pehle cool blue-grey tha) */
+  background: rgba(255, 250, 247, 0.8);
   caret-color: var(--color-primary);
   transition: border-color 0.25s var(--ease-soft), background 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
+  width: 100%; /* NEW — wrapper ke andar full width le */
 }
 
 .auth-card input::placeholder {
@@ -117,7 +117,6 @@
   box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.15);
 }
 
-/* Fixes Chrome/Edge autofill forcing white text on a white/yellow background */
 .auth-card input:-webkit-autofill,
 .auth-card input:-webkit-autofill:hover,
 .auth-card input:-webkit-autofill:focus {
@@ -165,11 +164,53 @@
 }
 
 .auth-switch a {
-  color: var(--color-primary-hover);   /* white par readable: #E68457 text ke liye halka padta hai */
+  color: var(--color-primary-hover);
   font-weight: 600;
   text-decoration: none;
 }
 
 .auth-switch a:hover {
   text-decoration: underline;
+}
+
+/* =========================================================
+   NEW — Password show/hide toggle
+   ========================================================= */
+
+/* Input ke around ek wrapper — isse hi position: relative denge
+   taaki eye icon andar-right mein absolute position ho sake */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Text overlap na ho isliye right side extra padding */
+.password-input-wrapper input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-faint);
+  cursor: pointer;
+  transition: color 0.2s var(--ease-soft);
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-primary-hover);
+}
+
+.password-toggle-btn svg {
+  width: 18px;
+  height: 18px;
 }

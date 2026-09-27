@@ -2,8 +2,24 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFeed } from '../features/posts/postSlice';
 import PostCard from '../components/PostCard';
-import StoryBar from '../components/StoryBar'; // 24h stories bar
+import StoryBar from '../components/StoryBar';
 import '../styles/feed.css';
+
+const SkeletonCard = () => (
+  <div className="feed-skeleton-card">
+    <div className="feed-skeleton-header">
+      <div className="feed-skeleton-avatar" />
+      <div>
+        <div className="feed-skeleton-line feed-skeleton-line--name" />
+        <div className="feed-skeleton-line feed-skeleton-line--time" />
+      </div>
+    </div>
+    <div className="feed-skeleton-line feed-skeleton-line--text" />
+    <div className="feed-skeleton-line feed-skeleton-line--text" />
+    <div className="feed-skeleton-line feed-skeleton-line--text" />
+    <div className="feed-skeleton-image" />
+  </div>
+);
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -17,12 +33,14 @@ const Home = () => {
 
   return (
     <div className="feed-page">
-      {/* Masonry (CSS columns) ke BAHAR rakha hai, warna ek column mein dab jayega.
-          Loading/empty state mein bhi dikhta hai, isliye conditional ke bahar hai */}
       <StoryBar />
 
       {isInitialLoading ? (
-        <div className="feed-loading">Loading posts...</div>
+        <div className="feed-skeleton-list">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       ) : feed.length === 0 ? (
         <p className="feed-empty">No posts yet.</p>
       ) : (
