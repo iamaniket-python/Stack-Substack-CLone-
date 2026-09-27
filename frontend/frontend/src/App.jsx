@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { fetchCurrentUser } from './features/auth/authSlice';
 import Navbar from './components/Navbar';
 import Login from "./pages/Authentication/Login"; 
-import Register from './pages/authentication/Register';
+import Register from './pages/Authentication/Register';
 import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
 import WritePost from './pages/WritePost';
