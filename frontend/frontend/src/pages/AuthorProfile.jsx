@@ -11,18 +11,18 @@ import {
   getSubscriptionStatusAPI,
 } from '../features/subscriptions/subscriptionAPI';
 import { createOrderAPI, verifyPaymentAPI } from '../features/payments/paymentAPI';
-// NEW — apne profile ke 5 tabs ka data
+// UPDATED — ab kisi bhi user ki id ke saath call ho sakta hai
 import {
-  getMyPostsAPI,
-  getMyRepliesAPI,
-  getMyLikesAPI,
-  getMySubscriptionsAPI,
-  getMyActivityAPI,
+  getProfilePostsAPI,
+  getProfileRepliesAPI,
+  getProfileLikesAPI,
+  getProfileSubscriptionsAPI,
+  getProfileActivityAPI,
 } from '../features/profile/profileAPI';
 import PostCard from '../components/PostCard';
 import '../styles/authorProfile.css';
 
-// NEW — tab config, order yahi rahega jo UI mein dikhega
+// tab config, order yahi rahega jo UI mein dikhega
 const TABS = [
   { key: 'activity', label: 'Activity' },
   { key: 'posts', label: 'Posts' },
@@ -52,7 +52,7 @@ const AuthorProfile = () => {
 
   const isOwnProfile = user?.id === id;
 
-  // NEW — tabs ka apna state, alag hai profile-load state se
+  // tabs ka apna state, alag hai profile-load state se
   const [activeTab, setActiveTab] = useState('activity');
   const [tabData, setTabData] = useState({
     activity: null,
@@ -90,20 +90,26 @@ const AuthorProfile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
-  // NEW — jab bhi apna profile ho aur tab badle, uska data lazy-load karo (ek hi baar per tab, cache rakhte hain)
+  // UPDATED — ab har profile (apna ya kisi aur ka) ke liye chalega.
+  // targetId apna profile ho to undefined (apna hi use hoga), warna params ki id
   useEffect(() => {
-    if (!isOwnProfile) return;
+    setTabData({ activity: null, posts: null, replies: null, likes: null, subscriptions: null }); // profile badalne par cache reset
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  useEffect(() => {
     if (tabData[activeTab] !== null) return; // already loaded, dobara mat maango
 
     const fetchTab = async () => {
       setTabLoading(true);
       try {
+        const targetId = isOwnProfile ? undefined : id;
         let res;
-        if (activeTab === 'activity') res = await getMyActivityAPI();
-        else if (activeTab === 'posts') res = await getMyPostsAPI();
-        else if (activeTab === 'replies') res = await getMyRepliesAPI();
-        else if (activeTab === 'likes') res = await getMyLikesAPI();
-        else if (activeTab === 'subscriptions') res = await getMySubscriptionsAPI();
+        if (activeTab === 'activity') res = await getProfileActivityAPI(targetId);
+        else if (activeTab === 'posts') res = await getProfilePostsAPI(targetId);
+        else if (activeTab === 'replies') res = await getProfileRepliesAPI(targetId);
+        else if (activeTab === 'likes') res = await getProfileLikesAPI(targetId);
+        else if (activeTab === 'subscriptions') res = await getProfileSubscriptionsAPI(targetId);
 
         const payload = res.data.data;
         setTabData((prev) => ({ ...prev, [activeTab]: payload }));
@@ -116,7 +122,7 @@ const AuthorProfile = () => {
 
     fetchTab();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, isOwnProfile]);
+  }, [activeTab, id, isOwnProfile]);
 
   const handleFreeSubscribe = async () => {
     setActionBusy(true);
@@ -192,7 +198,6 @@ const AuthorProfile = () => {
   const { profile: info, subscriberCount, postCount } = profile;
   const isPaidSub = subscription?.tier === 'paid';
 
-  // NEW — active tab ka content render karne wala helper
   const renderTabContent = () => {
     const data = tabData[activeTab];
 
@@ -346,40 +351,22 @@ const AuthorProfile = () => {
         )}
       </div>
 
-      {/* NEW — tabs sirf apne profile pe */}
-      {isOwnProfile ? (
-        <div className="profile-tabs-section">
-          <div className="profile-tabs-bar">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                className={`profile-tab-btn ${activeTab === tab.key ? 'is-active' : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-                type="button"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div className="profile-tab-content">{renderTabContent()}</div>
+      {/* UPDATED — tabs ab sabke profile pe, apna ho ya kisi aur ka */}
+      <div className="profile-tabs-section">
+        <div className="profile-tabs-bar">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`profile-tab-btn ${activeTab === tab.key ? 'is-active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-      ) : (
-        <div className="author-posts">
-          <h2>Posts</h2>
-          {posts.length === 0 ? (
-            <p className="feed-empty">No published posts yet.</p>
-          ) : (
-            <div className="feed-grid">
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={{ ...post, author_name: info.name, author_avatar: info.avatar_url }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        <div className="profile-tab-content">{renderTabContent()}</div>
+      </div>
 
       {showEditProfile && (
         <EditProfileModal

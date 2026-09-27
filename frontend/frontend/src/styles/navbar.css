@@ -181,15 +181,6 @@
     height: 60px;
   }
 
-  .navbar-links {
-    gap: 2px;
-  }
-
-  .navbar-links a {
-    font-size: 14px;
-    padding: 8px 10px;
-  }
-
   .navbar-cta {
     padding: 8px 16px !important;
   }
@@ -257,10 +248,6 @@
 
 /* Chhote phones */
 @media (max-width: 480px) {
-  .navbar {
-    gap: 8px;
-  }
-
   .navbar-logo {
     font-size: 18px;
     gap: 8px;
@@ -270,15 +257,6 @@
     width: 22px;
     height: 22px;
     border-radius: 7px;
-  }
-
-  .navbar-links a {
-    font-size: 13px;
-    padding: 7px 8px;
-  }
-
-  .navbar-cta {
-    padding: 8px 14px !important;
   }
 }
 
@@ -352,31 +330,50 @@
   .navbar-links .navbar-logout:hover {
     color: var(--color-danger);
   }
-
-  .navbar-links {
-    gap: 2px;
-  }
 }
 
 /* Chhote phones (360px - 480px) */
 @media (max-width: 480px) {
-  .navbar {
-    padding: 0 12px;
-    gap: 6px;
-  }
-
-  /* Logo ka mark chhupa do taaki icons ko jagah mile */
-  .navbar-logo::before {
-    display: none;
-  }
-
-  .navbar-links a.nav-link,
-  .navbar-links .navbar-logout {
-    width: 36px;
-    height: 36px;
-  }
-
   .navbar-links a.navbar-avatar {
     margin-left: 2px;
+  }
+}
+
+/* =========================================================
+   Mobile: LOGO upar (top bar), ICONS neeche (Instagram-style
+   fixed bottom bar, evenly spaced)
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Top bar: ab sirf logo ke liye — chhota, kam padding */
+  .navbar {
+    height: 52px;
+    padding: 0 16px;
+    justify-content: flex-start; /* akela child (logo) hai, start pe rahega */
+  }
+
+  /* Icons wala row ab navbar se nikal ke apna khud ka
+     fixed bottom bar ban jaata hai */
+  .navbar-links {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    justify-content: space-around; /* Instagram jaisa evenly spaced */
+    gap: 0;
+    background: var(--color-surface-glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-top: 1px solid rgba(var(--color-primary-rgb), 0.14);
+    box-shadow: 0 -6px 24px rgba(var(--color-primary-rgb), 0.06);
+    padding: 8px clamp(8px, 3vw, 24px);
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Avatar/logout ka extra margin bottom-bar mein nahi chahiye,
+     space-around already spacing de raha hai */
+  .navbar-links a.navbar-avatar,
+  .navbar-logout {
+    margin-left: 0;
   }
 }

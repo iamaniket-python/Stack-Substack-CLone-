@@ -1,20 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const protect = require("../middlewares/authMiddleware"); // FIXED — correct path, default export
+const protect = require("../middlewares/authMiddleware");
 const {
-  getMyPosts,
-  getMyReplies,
-  getMyLikes,
-  getMySubscriptions,
-  getMyActivity,
+  getProfilePosts,
+  getProfileReplies,
+  getProfileLikes,
+  getProfileSubscriptions,
+  getProfileActivity,
 } = require("../controllers/profile.controller");
 
-router.use(protect);
+router.use(protect); // dekhne ke liye bhi login zaroori hai, sirf apna data likhne/badalne ka access nahi milta
 
-router.get("/posts", getMyPosts);
-router.get("/replies", getMyReplies);
-router.get("/likes", getMyLikes);
-router.get("/subscriptions", getMySubscriptions);
-router.get("/activity", getMyActivity);
+// Apna profile (req.userId use hoga)
+router.get("/posts", getProfilePosts);
+router.get("/replies", getProfileReplies);
+router.get("/likes", getProfileLikes);
+router.get("/subscriptions", getProfileSubscriptions);
+router.get("/activity", getProfileActivity);
+
+// Kisi aur user ka profile (req.params.id use hoga)
+router.get("/:id/posts", getProfilePosts);
+router.get("/:id/replies", getProfileReplies);
+router.get("/:id/likes", getProfileLikes);
+router.get("/:id/subscriptions", getProfileSubscriptions);
+router.get("/:id/activity", getProfileActivity);
 
 module.exports = router;
