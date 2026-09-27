@@ -1,11 +1,11 @@
 const { query } = require('../config/db');
 
-const createUser = async ({ name, email, passwordHash }) => {
+const createUser = async ({ name, username, email, passwordHash }) => {
   const { rows } = await query(
-    `INSERT INTO users (name, email, password_hash)
-     VALUES ($1, $2, $3)
-     RETURNING id, name, email, bio, avatar_url, is_verified, created_at`,
-    [name, email, passwordHash]
+    `INSERT INTO users (name, username, email, password_hash)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, name, username, email, bio, avatar_url, is_verified, created_at`,
+    [name, username, email, passwordHash]
   );
   return rows[0];
 };
@@ -17,7 +17,7 @@ const findUserByEmail = async (email) => {
 
 const findUserById = async (id) => {
   const { rows } = await query(
-    'SELECT id, name, email, bio, avatar_url, is_verified, created_at FROM users WHERE id = $1',
+    'SELECT id, name, username, email, bio, avatar_url, is_verified, created_at FROM users WHERE id = $1',
     [id]
   );
   return rows[0];
@@ -25,7 +25,7 @@ const findUserById = async (id) => {
 
 const getPublicProfile = async (userId) => {
   const { rows } = await query(
-    `SELECT id, name, bio, avatar_url, created_at FROM users WHERE id = $1`,
+    `SELECT id, name, username, bio, avatar_url, created_at FROM users WHERE id = $1`,
     [userId]
   );
   return rows[0];
@@ -34,13 +34,13 @@ const getPublicProfile = async (userId) => {
 const updateUserAvatar = async (userId, avatarUrl) => {
   const { rows } = await query(
     `UPDATE users SET avatar_url = $2, updated_at = NOW() WHERE id = $1
-     RETURNING id, name, email, bio, avatar_url, is_verified, created_at`,
+     RETURNING id, name, username, email, bio, avatar_url, is_verified, created_at`,
     [userId, avatarUrl]
   );
   return rows[0];
 };
 
-const isUsernameTaken = async (username, excludeUserId) => {
+const isUsernameTaken = async (username, excludeUserId = null) => {
   const { rows } = await query(
     `SELECT id FROM users WHERE LOWER(username) = LOWER($1) AND id != $2`,
     [username, excludeUserId]
@@ -70,7 +70,6 @@ const updateProfile = async (userId, { name, username, bio, avatar_url }) => {
   );
   return rows[0];
 };
-
 
 module.exports = {
   createUser,

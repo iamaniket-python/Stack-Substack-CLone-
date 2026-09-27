@@ -40,7 +40,7 @@ app.use("/api/profile", profileRoutes);
 
 
 
-app.use('/api', apiLimiter);
+// app.use('/api', apiLimiter);
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is healthy' });

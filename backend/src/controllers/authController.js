@@ -5,6 +5,7 @@ const {
   createUser,
   findUserByEmail,
   findUserById,
+  isUsernameTaken,
 } = require('../models/userModel');
 const {
   saveRefreshToken,
@@ -20,12 +21,16 @@ const {
 } = require('../utils/tokenUtils');
 const env = require('../config/env');
 
-const REFRESH_COOKIE_NAME = 'substack_refresh_token';
+const REFRESH_COOKIE_NAME = env.cookie.refreshTokenName;
 
+// Local dev: frontend+backend same-site (localhost, alag ports) -> Lax/Strict theek hai.
+// Production: Vercel (frontend) aur Render (backend) alag domains hain -> cross-site cookie
+// bhejne ke liye SameSite=None + Secure=true dono zaroori hain (browser spec ki requirement hai,
+// warna cookie silently drop ho jaata hai aur login turant "logout" jaisa dikhta hai).
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.nodeEnv === 'production',
-  sameSite: 'strict',
+  secure: env.isProduction,
+  sameSite: env.isProduction ? 'none' : 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -43,14 +48,38 @@ const issueTokens = async (res, userId) => {
   return accessToken;
 };
 
+// Agar frontend username nahi bhejta, to email se ek base nikal ke
+// uniqueness check karte hue (test, test2, test3...) suffix laga dete hain.
+const generateUniqueUsername = async (base) => {
+  let candidate = base;
+  let suffix = 1;
+  while (await isUsernameTaken(candidate)) {
+    candidate = `${base}${suffix}`;
+    suffix += 1;
+  }
+  return candidate;
+};
+
 const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
+  let { username } = req.body;
 
   const existing = await findUserByEmail(email);
   if (existing) throw new ApiError(409, 'Email already registered');
 
+  if (username) {
+    // Basic sanity: lowercase, no spaces/special chars issues later on
+    username = username.trim().toLowerCase();
+    if (await isUsernameTaken(username)) {
+      throw new ApiError(409, 'Username already taken');
+    }
+  } else {
+    const base = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    username = await generateUniqueUsername(base || 'user');
+  }
+
   const passwordHash = await bcrypt.hash(password, 12);
-  const user = await createUser({ name, email, passwordHash });
+  const user = await createUser({ name, username, email, passwordHash });
 
   const accessToken = await issueTokens(res, user.id);
 
