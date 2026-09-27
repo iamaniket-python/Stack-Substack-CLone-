@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route } from 'react-router-dom';
 import { fetchCurrentUser } from './features/auth/authSlice';
 import Navbar from './components/Navbar';
-import Login from './pages/authentication/Login';
+import Login from "./pages/Authentication/Login"; 
 import Register from './pages/authentication/Register';
 import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
