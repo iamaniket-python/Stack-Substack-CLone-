@@ -1,6 +1,7 @@
 /* ============ Layout ============ */
 .messages-page {
-  --navbar-h: 72px; /* apne navbar ki height se match karo */
+  --navbar-h: 72px; /* apne top navbar ki height se match karo */
+  --bottom-navbar-h: 60px; /* apne mobile bottom-fixed navbar ki height se match karo */
   display: flex;
   height: calc(100vh - var(--navbar-h));
   height: calc(100dvh - var(--navbar-h)); /* dvh: mobile browser ki address bar ke saath sahi height */
@@ -430,7 +431,12 @@
 
 /* ============ Mobile: WhatsApp-style, ek waqt mein ek screen ============ */
 @media (max-width: 768px) {
-  .messages-page { --navbar-h: 60px; } /* mobile navbar chhota ho to yahan match karo */
+  .messages-page {
+    --navbar-h: 60px; /* mobile top navbar chhota ho to yahan match karo */
+    /* FIX: bottom-fixed navbar ke liye space reserve kiya, warna send button uske peeche chhup jaata tha */
+    height: calc(100vh - var(--navbar-h) - var(--bottom-navbar-h));
+    height: calc(100dvh - var(--navbar-h) - var(--bottom-navbar-h));
+  }
 
   .messages-sidebar { width: 100%; border-right: none; }
   .chat-window { display: none; }
@@ -443,7 +449,12 @@
   .chat-header { padding: 10px 12px; }
   .chat-messages { padding: 14px 12px; }
   .chat-bubble { max-width: 82%; }
-  .chat-input-row { padding: 8px 10px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+
+  .chat-input-row {
+    padding: 8px 10px;
+    /* FIX: pehle sirf iPhone safe-area add hoti thi, bottom navbar ki height missing thi */
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
 
   .conv-item { padding: 12px 16px; }
   .messages-sidebar-header { padding: 0 16px 14px; }

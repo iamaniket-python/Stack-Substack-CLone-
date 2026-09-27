@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-// const uploadToCloudinary = require('../utils/uploadToCloudinary');
 import {
   createPostAPI,
   updatePostAPI,
@@ -10,13 +9,20 @@ import {
 } from '../features/posts/postAPI';
 import '../styles/writePost.css';
 
+// Title column backend mein required hai (slug bhi isi se banta hai),
+// isliye content ke pehle ~60 characters se ek short title auto-generate
+// karte hain — user ko alag se title type nahi karna padta
+const generateTitleFromContent = (text) => {
+  const clean = text.trim().replace(/\s+/g, ' ');
+  if (!clean) return 'Untitled post';
+  return clean.length > 60 ? `${clean.slice(0, 60)}...` : clean;
+};
+
 const WritePost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = !!id;
 
-  const [title, setTitle] = useState('');
-  const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [isPaid, setIsPaid] = useState(false);
   const [existingCoverUrl, setExistingCoverUrl] = useState(null);
@@ -40,8 +46,6 @@ const WritePost = () => {
           return;
         }
 
-        setTitle(post.title);
-        setExcerpt(post.excerpt || '');
         setContent(post.content);
         setIsPaid(post.is_paid);
         setExistingCoverUrl(post.cover_image_url);
@@ -91,18 +95,19 @@ const WritePost = () => {
   };
 
   const savePost = async (status) => {
-    if (!title.trim() || !content.trim()) {
-      toast.error('Title and content are required');
+    if (!content.trim()) {
+      toast.error('Likho toh sahi kuch...');
       return;
     }
 
     setSaving(true);
     try {
       const newCoverUrl = await uploadCoverIfNeeded();
+      const title = generateTitleFromContent(content);
 
       const payload = {
         title,
-        excerpt,
+        excerpt: '',
         content,
         isPaid,
         status,
@@ -135,30 +140,14 @@ const WritePost = () => {
   return (
     <div className="write-page">
       <div className="write-container">
-         <input
-          className="write-title-small"
-          placeholder="Post title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        /> 
-
-        <input
-          className="write-excerpt"
-          placeholder="One-line excerpt (optional, shown on the feed card)"
-          value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
-          maxLength={500}
-        /> 
-
         <textarea
           className="write-content"
-          placeholder="Write your post..."
+          placeholder="Kya soch rahe ho?"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={16}
+          rows={10}
         />
 
-        {/* Cover image now sits below the post content, not above it */}
         <div className="write-cover-upload">
           {displayedCover ? (
             <img src={displayedCover} alt="Cover preview" className="write-cover-preview" />
