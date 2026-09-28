@@ -339,9 +339,9 @@ const AuthorProfile = () => {
                 <button onClick={handleFreeSubscribe} disabled={actionBusy} className="author-free-btn">
                   Subscribe free
                 </button>
-                <button onClick={handlePaidSubscribe} disabled={actionBusy} className="author-paid-btn">
+                {/* <button onClick={handlePaidSubscribe} disabled={actionBusy} className="author-paid-btn">
                   Subscribe ₹199/mo
-                </button>
+                </button> */}
                 <Link to={`/messages?user=${id}`} className="author-message-btn">
                   Message
                 </Link>

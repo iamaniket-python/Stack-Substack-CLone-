@@ -29,21 +29,26 @@ const PostCard = ({ post }) => {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [commentCount, setCommentCount] = useState(Number(post.comment_count) || 0); // NEW
+  const [commentCount, setCommentCount] = useState(Number(post.comment_count) || 0);
 
   const isOwnPost = Boolean(user?.id) && user.id === post.author_id;
 
   const toggleSubscribe = async () => {
+    if (!user) return navigate("/login");
     if (busy) return;
+
     const prev = subscribed;
     setSubscribed(!prev);
     setBusy(true);
     try {
       if (prev) await axiosInstance.delete(`/subscriptions/${post.author_id}`);
       else await axiosInstance.post(`/subscriptions/${post.author_id}`);
-    } catch {
+    } catch (err) {
       setSubscribed(prev);
-      toast.error("Subscribe nahi ho paya, dobara try karo");
+      // Server ka asli message dikhao, debugging aasan ho jaati hai
+      const msg = err?.response?.data?.message || "Subscribe nahi ho paya, dobara try karo";
+      console.error("Subscribe error:", err?.response?.status, err?.response?.data || err);
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
@@ -117,34 +122,32 @@ const PostCard = ({ post }) => {
               <span className="post-card-author-name">{post.author_name}</span>
             )}
 
-            {!isOwnPost &&
-              hasAuthorId &&
-              (user ? (
-                <button
-                  type="button"
-                  className={`post-card-sub ${subscribed ? "is-subscribed" : ""}`}
-                  onClick={toggleSubscribe}
-                  disabled={busy}
-                >
-                  {subscribed ? "Subscribed" : "Subscribe"}
-                </button>
-              ) : (
-                <Link to="/login" className="post-card-sub">
-                  Subscribe
-                </Link>
-              ))}
+            {/* Logged out ho ya in, ab hamesha button hai; logged out par click se login khulta hai */}
+            {!isOwnPost && hasAuthorId && (
+              <button
+                type="button"
+                className={`post-card-sub ${subscribed ? "is-subscribed" : ""}`}
+                onClick={toggleSubscribe}
+                disabled={busy}
+              >
+                {subscribed ? "Subscribed" : "Subscribe"}
+              </button>
+            )}
           </div>
           <span className="post-card-time">{timeAgo(post.published_at)}</span>
         </div>
       </div>
-      <Link  className="post-card-link">
+
+      {/* FIX: pehle <Link> tha bina `to` ke, jo router mein error deta hai */}
+      <div className="post-card-link">
         <div className="post-card-body">
           {post.is_paid && <span className="post-card-paid-badge">Paid</span>}
           {excerptText && <p className="post-card-excerpt">{excerptText}</p>}
         </div>
-      </Link>
+      </div>
+
       {post.cover_image_url && (
-         <div className="post-card-media" onClick={handleImageClick}>
+        <div className="post-card-media" onClick={handleImageClick}>
           <img
             src={post.cover_image_url}
             alt=""
@@ -153,8 +156,6 @@ const PostCard = ({ post }) => {
           />
         </div>
       )}
-
-     
 
       <div className="post-card-footer">
         <button
