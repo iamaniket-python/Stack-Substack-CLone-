@@ -1,10 +1,7 @@
-const pool = require("../config/db"); // apne pg pool ka actual path daal do
+const pool = require("../config/db"); 
 const asyncHandler = require("../utils/asyncHandler");
 
-/* ---------------------------------------------------------
-   GET /api/profile/posts
-   Apni saari posts (draft + published)
---------------------------------------------------------- */
+
 const getMyPosts = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -20,10 +17,7 @@ const getMyPosts = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { posts: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/replies
-   Apne comments, post title/slug ke saath
---------------------------------------------------------- */
+/* GET /api/profile/replies — apne comments */
 const getMyReplies = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -40,10 +34,7 @@ const getMyReplies = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { replies: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/likes
-   Jo posts like ki hain — PostCard component ke liye ready shape
---------------------------------------------------------- */
+/* GET /api/profile/likes — jo posts like ki hain */
 const getMyLikes = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -70,10 +61,7 @@ const getMyLikes = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { posts: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/subscriptions
-   Jin authors ko subscribe kiya hai
---------------------------------------------------------- */
+/* GET /api/profile/subscriptions — jin authors ko subscribe kiya */
 const getMySubscriptions = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -93,11 +81,7 @@ const getMySubscriptions = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { subscriptions: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/activity
-   Combined timeline: posts publish kiye + comments kiye + likes diye,
-   sab time ke hisaab se sorted, ek hi feed mein
---------------------------------------------------------- */
+/* GET /api/profile/activity — combined timeline */
 const getMyActivity = asyncHandler(async (req, res) => {
   const userId = req.userId;
 
@@ -135,12 +119,11 @@ const getMyActivity = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: { activity: rows } });
 });
-/* ---------------------------------------------------------
-   GET /api/profile/posts  OR  /api/profile/:id/posts
---------------------------------------------------------- */
+
+/* GET /api/profile/posts  OR  /api/profile/:id/posts  (public) */
 const getProfilePosts = asyncHandler(async (req, res) => {
   const targetUserId = req.params.id || req.userId;
-  const isOwn = targetUserId === req.userId;
+  const isOwn = Boolean(req.userId) && targetUserId === req.userId;
 
   const { rows } = await pool.query(
     `SELECT id, title, slug, excerpt, cover_image_url, status, is_paid,
@@ -155,9 +138,7 @@ const getProfilePosts = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { posts: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/replies  OR  /api/profile/:id/replies
---------------------------------------------------------- */
+/* GET /api/profile/replies  OR  /api/profile/:id/replies  (public) */
 const getProfileReplies = asyncHandler(async (req, res) => {
   const targetUserId = req.params.id || req.userId;
 
@@ -174,11 +155,8 @@ const getProfileReplies = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { replies: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/likes  OR  /api/profile/:id/likes
-   is_liked / is_subscribed ab VIEWER (req.userId) ke relative hain,
-   target user ke nahi — PostCard ke buttons sahi state mein khulein
---------------------------------------------------------- */
+/* GET /api/profile/likes  OR  /api/profile/:id/likes  (login zaroori)
+   is_liked / is_subscribed VIEWER (req.userId) ke relative hain */
 const getProfileLikes = asyncHandler(async (req, res) => {
   const targetUserId = req.params.id || req.userId;
   const viewerId = req.userId;
@@ -208,9 +186,7 @@ const getProfileLikes = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { posts: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/subscriptions  OR  /api/profile/:id/subscriptions
---------------------------------------------------------- */
+/* GET /api/profile/subscriptions  OR  /api/profile/:id/subscriptions  (login zaroori) */
 const getProfileSubscriptions = asyncHandler(async (req, res) => {
   const targetUserId = req.params.id || req.userId;
 
@@ -230,11 +206,11 @@ const getProfileSubscriptions = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { subscriptions: rows } });
 });
 
-/* ---------------------------------------------------------
-   GET /api/profile/activity  OR  /api/profile/:id/activity
---------------------------------------------------------- */
+/* GET /api/profile/activity  OR  /api/profile/:id/activity  (public)
+   Logged-out viewer ko 'like' entries nahi milti (Likes tab login-only hai) */
 const getProfileActivity = asyncHandler(async (req, res) => {
   const targetUserId = req.params.id || req.userId;
+  const includeLikes = Boolean(req.userId);
 
   const { rows } = await pool.query(
     `
@@ -261,11 +237,11 @@ const getProfileActivity = asyncHandler(async (req, res) => {
              NULL AS snippet
       FROM likes l
       JOIN posts p ON p.id = l.post_id
-      WHERE l.user_id = $1
+      WHERE l.user_id = $1 AND $2::boolean = TRUE
     )
     ORDER BY occurred_at DESC
     `,
-    [targetUserId]
+    [targetUserId, includeLikes]
   );
 
   res.status(200).json({ success: true, data: { activity: rows } });
