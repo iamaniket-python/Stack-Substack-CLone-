@@ -12,8 +12,8 @@ const timeAgo = (dateStr) => {
   return `${Math.floor(hrs / 24)}d ago`;
 };
 
-// Indent sirf itne level tak, uske baad flat (mobile par jagah bachti hai)
-const MAX_INDENT_DEPTH = 3;
+// Is depth ke baad replies aur andar indent nahi hote (mobile par jagah bachti hai)
+const MAX_INDENT_DEPTH = 2;
 
 const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) => {
   const { user } = useSelector((state) => state.auth);
@@ -24,11 +24,11 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
   const canDelete = user && (user.id === comment.user_id || user.id === postAuthorId);
   const initial = comment.author_name?.[0]?.toUpperCase() || '?';
   const showImage = Boolean(comment.author_avatar) && !imgFailed;
-  const isIndented = depth > 0 && depth <= MAX_INDENT_DEPTH;
 
   const handleReplySubmit = () => {
-    if (!replyText.trim()) return;
-    onReply(comment.id, replyText.trim());
+    const text = replyText.trim();
+    if (!text) return;
+    onReply(comment.id, text);
     setReplyText('');
     setShowReplyBox(false);
   };
@@ -49,7 +49,7 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
   );
 
   return (
-    <div className={`comment-item ${isIndented ? 'comment-item--reply' : ''}`}>
+    <div className="comment-item">
       <Link to={`/author/${comment.user_id}`} className="comment-avatar-link">
         {avatar}
       </Link>
@@ -72,7 +72,7 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
               onClick={() => setShowReplyBox((s) => !s)}
               className="comment-action-btn"
             >
-              Reply
+              {showReplyBox ? 'Cancel' : 'Reply'}
             </button>
           ) : (
             <Link to="/login" className="comment-action-btn">
@@ -97,6 +97,7 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
               onChange={(e) => setReplyText(e.target.value)}
               placeholder={`Reply to ${comment.author_name}...`}
               onKeyDown={(e) => e.key === 'Enter' && handleReplySubmit()}
+              maxLength={1000}
               autoFocus
             />
             <button type="button" onClick={handleReplySubmit} disabled={!replyText.trim()}>
@@ -106,7 +107,11 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
         )}
 
         {comment.replies?.length > 0 && (
-          <div className="comment-replies">
+          <div
+            className={`comment-replies ${
+              depth >= MAX_INDENT_DEPTH ? 'comment-replies--flat' : ''
+            }`}
+          >
             {comment.replies.map((reply) => (
               <CommentItem
                 key={reply.id}
