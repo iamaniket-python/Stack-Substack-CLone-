@@ -1,17 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
-import { registerUser, clearAuthError } from '../../features/auth/authSlice';
+import { loginUser, clearAuthError } from '../../features/auth/authSlice';
 import '../../styles/auth.css';
 
-const Register = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { status, error } = useSelector((state) => state.auth);
+
+  // ProtectedRoute ne jahan se bheja tha wahin wapas jao, warna home
+  const redirectTo = location.state?.from?.pathname || '/';
+
+  // Page chhodte waqt purana error saaf karo
+  useEffect(() => {
+    dispatch(clearAuthError());
+    return () => {
+      dispatch(clearAuthError());
+    };
+  }, [dispatch]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,35 +33,33 @@ const Register = () => {
     e.preventDefault();
     dispatch(clearAuthError());
 
-    const result = await dispatch(registerUser(formData));
-    if (registerUser.fulfilled.match(result)) {
-      toast.success('Account created!');
-      navigate('/');
+    const result = await dispatch(
+      loginUser({ email: formData.email.trim(), password: formData.password })
+    );
+
+    if (loginUser.fulfilled.match(result)) {
+      toast.success('Welcome back!');
+      navigate(redirectTo, { replace: true });
     } else {
-      toast.error(result.payload || 'Registration failed');
+      toast.error(result.payload || 'Login failed');
     }
   };
+
+  const isLoading = status === 'loading';
 
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Create your account</h1>
+        <h1>Welcome back</h1>
 
-        <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+        {error && <p className="auth-error" role="alert">{error}</p>}
 
         <label htmlFor="email">Email</label>
         <input
           id="email"
           name="email"
           type="email"
+          autoComplete="email"
           value={formData.email}
           onChange={handleChange}
           required
@@ -61,9 +71,9 @@ const Register = () => {
             id="password"
             name="password"
             type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
-            minLength={8}
             required
           />
           <button
@@ -77,16 +87,16 @@ const Register = () => {
           </button>
         </div>
 
-        <button type="submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Creating account...' : 'Sign up'}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Log in'}
         </button>
 
         <p className="auth-switch">
-          Already have an account? <Link to="/login">Log in</Link>
+          New here? <Link to="/register">Create an account</Link>
         </p>
       </form>
     </div>
   );
 };
 
-export default Register;
+export default Login;

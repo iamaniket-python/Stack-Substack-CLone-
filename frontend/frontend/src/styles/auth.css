@@ -1,5 +1,11 @@
+/* Bottom navbar ki height: apne mobile bottom navbar se match karo (messages.css wali value) */
+:root {
+  --bottom-navbar-h: 60px;
+}
+
 .auth-page {
   min-height: calc(100vh - 72px);
+  min-height: calc(100dvh - 72px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,6 +22,7 @@
   border-radius: 50%;
   filter: blur(60px);
   z-index: 0;
+  pointer-events: none;
   animation: float 8s ease-in-out infinite;
 }
 
@@ -85,6 +92,16 @@
   margin-bottom: 26px;
 }
 
+/* Inline error message (Login/Register mein {error && ...}) */
+.auth-error {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(220, 53, 69, 0.1);
+  color: #c0392b;
+  font-size: 13.5px;
+}
+
 .auth-card label {
   font-size: 12.5px;
   font-weight: 600;
@@ -103,7 +120,7 @@
   background: rgba(255, 250, 247, 0.8);
   caret-color: var(--color-primary);
   transition: border-color 0.25s var(--ease-soft), background 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
-  width: 100%; /* NEW — wrapper ke andar full width le */
+  width: 100%;
 }
 
 .auth-card input::placeholder {
@@ -126,7 +143,9 @@
   caret-color: var(--color-primary);
 }
 
-.auth-card button {
+/* FIX: sirf submit button ko style karo (pehle .auth-card button tha,
+   jo password toggle button ko bhi override kar raha tha) */
+.auth-card button[type="submit"] {
   margin-top: 30px;
   padding: 14px;
   background: linear-gradient(135deg, var(--color-primary), #f0976f);
@@ -140,16 +159,16 @@
   transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
-.auth-card button:hover:not(:disabled) {
+.auth-card button[type="submit"]:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(var(--color-primary-rgb), 0.42);
 }
 
-.auth-card button:active:not(:disabled) {
+.auth-card button[type="submit"]:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.auth-card button:disabled {
+.auth-card button[type="submit"]:disabled {
   background: var(--color-border);
   color: var(--color-text-faint);
   box-shadow: none;
@@ -174,43 +193,81 @@
 }
 
 /* =========================================================
-   NEW — Password show/hide toggle
+   Password show/hide toggle
    ========================================================= */
-
-/* Input ke around ek wrapper — isse hi position: relative denge
-   taaki eye icon andar-right mein absolute position ho sake */
 .password-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-/* Text overlap na ho isliye right side extra padding */
 .password-input-wrapper input {
-  padding-right: 44px;
+  padding-right: 48px; /* text eye icon ke neeche na jaye */
 }
 
-.password-toggle-btn {
+/* FIX: .auth-card prefix se specificity badhayi, taaki koi general
+   button rule isse override na kare */
+.auth-card .password-toggle-btn {
   position: absolute;
-  right: 12px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
+  margin: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   background: none;
   border: none;
-  padding: 4px;
+  border-radius: 50%;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-faint);
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.2s var(--ease-soft);
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s var(--ease-soft), background 0.2s var(--ease-soft);
 }
 
-.password-toggle-btn:hover {
+.auth-card .password-toggle-btn:hover {
   color: var(--color-primary-hover);
+  background: var(--color-primary-soft);
+  transform: translateY(-50%); /* hover par upar na uchhle */
+  box-shadow: none;
 }
 
-.password-toggle-btn svg {
-  width: 18px;
-  height: 18px;
+.auth-card .password-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Mobile: bottom-fixed navbar ke peeche form na chhupe
+   ========================================================= */
+@media (max-width: 768px) {
+  .auth-page {
+    --top-navbar-h: 60px; /* mobile top navbar (logo wala) ki height */
+    min-height: calc(100dvh - var(--top-navbar-h));
+    align-items: flex-start;
+    padding: 20px 16px;
+    /* bottom navbar + iPhone safe area ke liye jagah chhodo */
+    padding-bottom: calc(var(--bottom-navbar-h) + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .auth-card {
+    margin: auto; /* jab content chhota ho to vertical center, bada ho to scroll */
+    padding: 32px 22px 28px;
+  }
+
+  .auth-card h1 { font-size: 23px; }
+
+  /* iPhone Safari focus par zoom na kare */
+  .auth-card input { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page, .auth-page::before, .auth-page::after, .auth-card {
+    animation: none !important;
+  }
 }
