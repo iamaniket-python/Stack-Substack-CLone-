@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { getMessagesAPI } from "../features/messages/messageAPI";
 import { getSocket } from "../socket/socketClient";
-import { ArrowLeft, Send, Smile, Check, CheckCheck } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 
 const ChatWindow = ({ conversation, onBack }) => {
   const { user } = useSelector((state) => state.auth);
@@ -58,8 +58,8 @@ const ChatWindow = ({ conversation, onBack }) => {
   }, [conversation, user.id]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, otherTyping]);
 
   const handleTypingChange = (value) => {
     setInput(value);
@@ -116,6 +116,15 @@ const ChatWindow = ({ conversation, onBack }) => {
   return (
     <div className="chat-window">
       <div className="chat-header">
+        {/* Back button header mein (sirf mobile par dikhta hai, CSS se) */}
+        <button
+          type="button"
+          className="icon-btn chat-back-btn"
+          onClick={onBack}
+          aria-label="Wapas"
+        >
+          <ArrowLeft size={20} />
+        </button>
         <img
           src={conversation.other_user_avatar}
           alt=""
@@ -158,13 +167,15 @@ const ChatWindow = ({ conversation, onBack }) => {
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
         />
+        {/* Send button input row mein */}
         <button
           type="button"
-          className="icon-btn chat-back-btn"
-          onClick={onBack}
-          aria-label="Wapas"
+          className="chat-send-btn"
+          onClick={handleSend}
+          disabled={!input.trim()}
+          aria-label="Send message"
         >
-          <ArrowLeft size={20} />
+          <Send size={18} />
         </button>
       </div>
     </div>
