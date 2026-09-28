@@ -28,6 +28,8 @@ const Messages = () => {
     conversations.find((c) => c.id === activeId) ||
     (draftConv?.id === activeId ? draftConv : null);
 
+  const isChatOpen = Boolean(active);
+
   const loadConversations = useCallback(async () => {
     try {
       const { data } = await getConversationsAPI();
@@ -58,6 +60,46 @@ const Messages = () => {
     [loadConversations]
   );
 
+  // Mobile keyboard fix: chat khula ho to page scroll lock + visual viewport ki asli height/offset
+  // CSS variables mein daalo (keyboard khulne par bhi input aur header screen ke andar rahein)
+  useEffect(() => {
+    if (!isChatOpen) return;
+
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+
+    const update = () => {
+      const height = vv ? vv.height : window.innerHeight;
+      const top = vv ? vv.offsetTop : 0;
+      root.style.setProperty('--vvh', `${height}px`);
+      root.style.setProperty('--vvtop', `${top}px`);
+
+      // Keyboard ke saath latest message hamesha dikhe
+      const list = document.querySelector('.chat-messages');
+      if (list) list.scrollTop = list.scrollHeight;
+    };
+
+    document.body.classList.add('chat-open');
+    update();
+
+    if (vv) {
+      vv.addEventListener('resize', update);
+      vv.addEventListener('scroll', update);
+    }
+    window.addEventListener('resize', update);
+
+    return () => {
+      document.body.classList.remove('chat-open');
+      root.style.removeProperty('--vvh');
+      root.style.removeProperty('--vvtop');
+      if (vv) {
+        vv.removeEventListener('resize', update);
+        vv.removeEventListener('scroll', update);
+      }
+      window.removeEventListener('resize', update);
+    };
+  }, [isChatOpen]);
+
   // Pehli baar list load: loader sirf yahin dikhta hai
   useEffect(() => {
     loadConversations().finally(() => setInitialLoading(false));
@@ -85,7 +127,7 @@ const Messages = () => {
 
   return (
     // has-active: mobile par list chhupa kar chat dikhata hai (CSS mein)
-    <div className={`messages-page ${active ? 'has-active' : ''}`}>
+    <div className={`messages-page ${isChatOpen ? 'has-active' : ''}`}>
       <div className="messages-sidebar">
         <div className="messages-sidebar-header">
           <h2>Messages</h2>

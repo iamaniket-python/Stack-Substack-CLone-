@@ -432,8 +432,7 @@
 /* ============ Mobile: WhatsApp-style, ek waqt mein ek screen ============ */
 @media (max-width: 768px) {
   .messages-page {
-    --navbar-h: 60px; /* mobile top navbar chhota ho to yahan match karo */
-    /* FIX: bottom-fixed navbar ke liye space reserve kiya, warna send button uske peeche chhup jaata tha */
+    --navbar-h: 60px;
     height: calc(100vh - var(--navbar-h) - var(--bottom-navbar-h));
     height: calc(100dvh - var(--navbar-h) - var(--bottom-navbar-h));
   }
@@ -441,18 +440,34 @@
   .messages-sidebar { width: 100%; border-right: none; }
   .chat-window { display: none; }
 
-  /* Chat select hote hi (JSX mein .has-active lagta hai): list chhupao, chat dikhao */
+  /* Chat khulte hi: poori screen le lo (top + bottom navbar ke upar).
+     Height/top JS se aate hain (visualViewport), taaki keyboard khulne par bhi layout sahi rahe. */
+  .messages-page.has-active {
+    position: fixed;
+    top: var(--vvtop, 0px);
+    left: 0;
+    right: 0;
+    height: var(--vvh, 100dvh);
+    z-index: 1000;
+    background: var(--color-bg);
+  }
   .messages-page.has-active .messages-sidebar { display: none; }
   .messages-page.has-active .chat-window { display: flex; }
 
+  /* Chat khula ho to peeche ka page scroll na kare */
+  body.chat-open {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   .chat-back-btn { display: inline-grid; }
-  .chat-header { padding: 10px 12px; }
+  .chat-header { padding: 10px 12px; flex-shrink: 0; }
   .chat-messages { padding: 14px 12px; }
   .chat-bubble { max-width: 82%; }
 
   .chat-input-row {
+    flex-shrink: 0;
     padding: 8px 10px;
-    /* FIX: pehle sirf iPhone safe-area add hoti thi, bottom navbar ki height missing thi */
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -472,9 +487,4 @@
 @keyframes sheetUp {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
-}
-
-/* Motion pasand na karne walon ke liye animations band */
-@media (prefers-reduced-motion: reduce) {
-  .messages-page *, .modal-overlay, .new-msg-modal { animation: none !important; transition: none !important; }
 }

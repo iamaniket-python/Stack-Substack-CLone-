@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import EditProfileModal from '../components/EditProfileModal';
@@ -11,7 +11,6 @@ import {
   getSubscriptionStatusAPI,
 } from '../features/subscriptions/subscriptionAPI';
 import { createOrderAPI, verifyPaymentAPI } from '../features/payments/paymentAPI';
-// UPDATED — ab kisi bhi user ki id ke saath call ho sakta hai
 import {
   getProfilePostsAPI,
   getProfileRepliesAPI,
@@ -23,13 +22,16 @@ import PostCard from '../components/PostCard';
 import '../styles/authorProfile.css';
 
 // tab config, order yahi rahega jo UI mein dikhega
+// loginOnly: true wale tabs logged-out user ko nahi dikhte (backend bhi 401 deta hai)
 const TABS = [
   { key: 'activity', label: 'Activity' },
   { key: 'posts', label: 'Posts' },
   { key: 'replies', label: 'Replies' },
-  { key: 'likes', label: 'Likes' },
-  { key: 'subscriptions', label: 'Subscriptions' },
+  { key: 'likes', label: 'Likes', loginOnly: true },
+  { key: 'subscriptions', label: 'Subscriptions', loginOnly: true },
 ];
+
+const LOGIN_ONLY_KEYS = TABS.filter((t) => t.loginOnly).map((t) => t.key);
 
 const timeAgo = (date) => {
   const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
@@ -40,7 +42,11 @@ const timeAgo = (date) => {
 
 const AuthorProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+
+  const isLoggedIn = Boolean(user);
 
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -63,6 +69,11 @@ const AuthorProfile = () => {
   });
   const [tabLoading, setTabLoading] = useState(false);
 
+  const visibleTabs = TABS.filter((tab) => !tab.loginOnly || isLoggedIn);
+
+  // Logged-out user ko login page pe bhejo, login ke baad isi profile par wapas
+  const goToLogin = () => navigate('/login', { state: { from: location } });
+
   const loadProfile = async () => {
     setLoading(true);
     try {
@@ -77,6 +88,10 @@ const AuthorProfile = () => {
         const statusRes = await getSubscriptionStatusAPI(id);
         setSubscribed(statusRes.data.data.subscribed);
         setSubscription(statusRes.data.data.subscription);
+      } else {
+        // logout ho gaya ya apna profile: purana subscription state saaf karo
+        setSubscribed(false);
+        setSubscription(null);
       }
     } catch (err) {
       toast.error('Failed to load profile');
@@ -90,15 +105,24 @@ const AuthorProfile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
-  // UPDATED — ab har profile (apna ya kisi aur ka) ke liye chalega.
-  // targetId apna profile ho to undefined (apna hi use hoga), warna params ki id
+  // profile badalne par tab cache reset
   useEffect(() => {
-    setTabData({ activity: null, posts: null, replies: null, likes: null, subscriptions: null }); // profile badalne par cache reset
+    setTabData({ activity: null, posts: null, replies: null, likes: null, subscriptions: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Logged-out user login-only tab par ho to Activity par le aao
+  useEffect(() => {
+    if (!isLoggedIn && LOGIN_ONLY_KEYS.includes(activeTab)) {
+      setActiveTab('activity');
+    }
+  }, [isLoggedIn, activeTab]);
+
   useEffect(() => {
     if (tabData[activeTab] !== null) return; // already loaded, dobara mat maango
+
+    // Logged-out par login-only tabs ki API call bilkul nahi (401 + refresh se bachne ke liye)
+    if (!isLoggedIn && LOGIN_ONLY_KEYS.includes(activeTab)) return;
 
     const fetchTab = async () => {
       setTabLoading(true);
@@ -122,9 +146,10 @@ const AuthorProfile = () => {
 
     fetchTab();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, id, isOwnProfile]);
+  }, [activeTab, id, isOwnProfile, isLoggedIn]);
 
   const handleFreeSubscribe = async () => {
+    if (!isLoggedIn) return goToLogin();
     setActionBusy(true);
     try {
       await subscribeAPI(id);
@@ -151,7 +176,9 @@ const AuthorProfile = () => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handlePaidSubscribe = async () => {
+    if (!isLoggedIn) return goToLogin();
     setActionBusy(true);
     try {
       const { data } = await createOrderAPI(id);
@@ -237,7 +264,7 @@ const AuthorProfile = () => {
           {data.posts.map((post) => (
             <PostCard
               key={post.id}
-              post={{ ...post, author_name: info.name, author_avatar: info.avatar_url }}
+              post={{ ...post, author_id: id, author_name: info.name, author_avatar: info.avatar_url }}
             />
           ))}
         </div>
@@ -342,19 +369,25 @@ const AuthorProfile = () => {
                 {/* <button onClick={handlePaidSubscribe} disabled={actionBusy} className="author-paid-btn">
                   Subscribe ₹199/mo
                 </button> */}
-                <Link to={`/messages?user=${id}`} className="author-message-btn">
-                  Message
-                </Link>
+                {isLoggedIn ? (
+                  <Link to={`/messages?user=${id}`} className="author-message-btn">
+                    Message
+                  </Link>
+                ) : (
+                  // Logged-out: /messages protected hai, isliye pehle login, phir isi profile par wapas
+                  <Link to="/login" state={{ from: location }} className="author-message-btn">
+                    Message
+                  </Link>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* UPDATED — tabs ab sabke profile pe, apna ho ya kisi aur ka */}
       <div className="profile-tabs-section">
         <div className="profile-tabs-bar">
-          {TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.key}
               className={`profile-tab-btn ${activeTab === tab.key ? 'is-active' : ''}`}
