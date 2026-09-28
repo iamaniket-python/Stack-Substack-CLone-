@@ -2,17 +2,25 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, TriangleAlert } from 'lucide-react';
 import { loginUser, clearAuthError } from '../../features/auth/authSlice';
 import '../../styles/auth.css';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [capsLockOn, setCapsLockOn] = useState(false);
+  const [fieldError, setFieldError] = useState('');
+  const [isSlow, setIsSlow] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { status, error } = useSelector((state) => state.auth);
+
+  const isLoading = status === 'loading';
 
   // ProtectedRoute ne jahan se bheja tha wahin wapas jao, warna home
   const redirectTo = location.state?.from?.pathname || '/';
@@ -25,16 +33,45 @@ const Login = () => {
     };
   }, [dispatch]);
 
+  // Render free tier cold start: 4 sec se zyada lage to user ko batao
+  useEffect(() => {
+    if (!isLoading) {
+      setIsSlow(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsSlow(true), 4000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (fieldError) setFieldError('');
+    if (error) dispatch(clearAuthError());
+  };
+
+  const handlePasswordKey = (e) => {
+    setCapsLockOn(e.getModifierState && e.getModifierState('CapsLock'));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return; // double submit roko
+
+    const email = formData.email.trim();
+
+    if (!EMAIL_REGEX.test(email)) {
+      setFieldError('Please enter a valid email address');
+      return;
+    }
+    if (!formData.password) {
+      setFieldError('Please enter your password');
+      return;
+    }
+
     dispatch(clearAuthError());
 
     const result = await dispatch(
-      loginUser({ email: formData.email.trim(), password: formData.password })
+      loginUser({ email, password: formData.password })
     );
 
     if (loginUser.fulfilled.match(result)) {
@@ -45,14 +82,19 @@ const Login = () => {
     }
   };
 
-  const isLoading = status === 'loading';
+  const shownError = fieldError || error;
 
   return (
     <div className="auth-page">
-      <form className="auth-card" onSubmit={handleSubmit}>
+      <form className="auth-card" onSubmit={handleSubmit} noValidate>
         <h1>Welcome back</h1>
+        <p className="auth-card-subtitle">Log in to continue reading and writing.</p>
 
-        {error && <p className="auth-error" role="alert">{error}</p>}
+        {shownError && (
+          <p className="auth-error" role="alert">
+            {shownError}
+          </p>
+        )}
 
         <label htmlFor="email">Email</label>
         <input
@@ -60,8 +102,10 @@ const Login = () => {
           name="email"
           type="email"
           autoComplete="email"
+          autoFocus
           value={formData.email}
           onChange={handleChange}
+          disabled={isLoading}
           required
         />
 
@@ -74,6 +118,10 @@ const Login = () => {
             autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
+            onKeyUp={handlePasswordKey}
+            onKeyDown={handlePasswordKey}
+            onBlur={() => setCapsLockOn(false)}
+            disabled={isLoading}
             required
           />
           <button
@@ -87,9 +135,28 @@ const Login = () => {
           </button>
         </div>
 
+        {capsLockOn && (
+          <p className="auth-caps-warning" role="status">
+            <TriangleAlert size={14} /> Caps Lock is on
+          </p>
+        )}
+
         <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Logging in...' : 'Log in'}
+          {isLoading ? (
+            <span className="auth-btn-content">
+              <span className="auth-spinner" aria-hidden="true" />
+              Logging in...
+            </span>
+          ) : (
+            'Log in'
+          )}
         </button>
+
+        {isSlow && (
+          <p className="auth-slow-hint" role="status">
+            Server jag raha hai, pehli baar 30-60 sec lag sakte hain. Please wait...
+          </p>
+        )}
 
         <p className="auth-switch">
           New here? <Link to="/register">Create an account</Link>

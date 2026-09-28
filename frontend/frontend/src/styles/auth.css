@@ -271,3 +271,54 @@
     animation: none !important;
   }
 }
+
+/* ===== Login extras ===== */
+.auth-caps-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #b7791f;
+}
+
+.auth-btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* disabled button par spinner ka rang dikhe */
+.auth-card button[type="submit"]:disabled .auth-spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: var(--color-primary);
+}
+
+.auth-slow-hint {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 13px;
+  text-align: center;
+}
+
+.auth-card input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
