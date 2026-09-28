@@ -9,6 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 40px;
 }
 
@@ -28,7 +29,9 @@
 .dash-new-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  flex-shrink: 0;
   background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
   color: #fff;
   padding: 13px 26px;
@@ -37,6 +40,7 @@
   font-weight: 700;
   font-size: 14px;
   box-shadow: var(--shadow-glow);
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
@@ -125,6 +129,8 @@
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
@@ -148,6 +154,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   background: var(--color-surface-glass);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -165,6 +172,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0; /* lamba title flex mein shrink ho sake */
 }
 
 .dash-row-main h3 {
@@ -172,6 +180,7 @@
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .dash-status {
@@ -243,6 +252,7 @@
   font-weight: 600;
   padding: 9px 16px;
   border-radius: var(--radius-full);
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
@@ -260,6 +270,7 @@
   cursor: pointer;
   padding: 9px 16px;
   border-radius: var(--radius-full);
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.3s var(--ease-soft);
 }
 
@@ -276,4 +287,113 @@
   backdrop-filter: blur(10px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+@media (max-width: 1024px) {
+  .dashboard-page { padding: 40px 20px; }
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+@media (max-width: 768px) {
+  .dashboard-page {
+    padding: 20px 16px;
+    /* bottom-fixed navbar ke peeche last row na chhupe */
+    padding-bottom: calc(var(--bottom-navbar-h, 60px) + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Header: heading upar, "New post" button poori width mein neeche */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .dashboard-header h1 { font-size: 24px; }
+  .dash-new-btn { width: 100%; padding: 14px 20px; }
+
+  /* Stats: 3 chhote cards ek row mein, compact */
+  .dash-stats {
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dash-stat-card {
+    padding: 16px 12px 14px;
+    border-radius: var(--radius-md);
+    align-items: center;
+    text-align: center;
+  }
+  .dash-stat-value { font-size: 22px; letter-spacing: -0.4px; }
+  .dash-stat-label { font-size: 10px; letter-spacing: 0.3px; }
+  /* touch par hover-lift nahi chahiye */
+  .dash-stat-card:hover,
+  .dash-row:hover { transform: none; }
+
+  /* Filters: poori width, barabar buttons, chhoti screen par horizontal scroll */
+  .dash-filters {
+    width: 100%;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .dash-filters::-webkit-scrollbar { display: none; }
+  .dash-filter-btn {
+    flex: 1;
+    padding: 10px 14px;
+  }
+
+  /* Post row: content upar, actions neeche poori width mein */
+  .dash-list { gap: 12px; }
+  .dash-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+  .dash-row-main h3 { font-size: 15.5px; }
+
+  .dash-row-actions {
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+  }
+  /* 44px tap target */
+  .dash-action-link,
+  .dash-action-delete {
+    flex: 1;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-hover);
+  }
+  .dash-action-delete {
+    background: #fdeceb;
+    color: #e0554f;
+  }
+
+  .feed-empty { padding: 44px 16px; font-size: 14px; }
+}
+
+/* Bahut chhoti screens (jaise 360px se kam) */
+@media (max-width: 380px) {
+  .dash-stat-value { font-size: 19px; }
+  .dash-stat-label { font-size: 9.5px; }
+  .dash-action-link,
+  .dash-action-delete { font-size: 13px; padding: 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-page { animation: none; }
+  .dash-stat-card,
+  .dash-row,
+  .dash-new-btn { transition: none; }
 }
