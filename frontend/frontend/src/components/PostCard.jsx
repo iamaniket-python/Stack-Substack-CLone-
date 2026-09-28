@@ -123,7 +123,7 @@ const PostCard = ({ post }) => {
             )}
 
             {/* Logged out ho ya in, ab hamesha button hai; logged out par click se login khulta hai */}
-            {!isOwnPost && hasAuthorId && (
+            {/* {!isOwnPost && hasAuthorId && (
               <button
                 type="button"
                 className={`post-card-sub ${subscribed ? "is-subscribed" : ""}`}
@@ -132,7 +132,7 @@ const PostCard = ({ post }) => {
               >
                 {subscribed ? "Subscribed" : "Subscribe"}
               </button>
-            )}
+            )} */}
           </div>
           <span className="post-card-time">{timeAgo(post.published_at)}</span>
         </div>
