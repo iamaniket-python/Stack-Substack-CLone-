@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Env mein /api ho ya na ho, dono case sahi chalenge
+const RAW_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const trimmed = RAW_URL.replace(/\/+$/, '');
+const BASE_URL = trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -15,6 +18,9 @@ export const setAccessToken = (token) => {
 };
 
 export const getAccessToken = () => accessToken;
+
+// In endpoints par 401 ka matlab "token expire" nahi hota, isliye refresh try nahi karna
+const NO_REFRESH_URLS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
 axiosInstance.interceptors.request.use((config) => {
   if (accessToken) {
@@ -36,14 +42,15 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (originalRequest.url.includes('/auth/refresh')) {
-        // refresh itself failed — force logout, no infinite loop
-        setAccessToken(null);
-      
-        return Promise.reject(error);
-      }
+    // Network error / config missing: seedha reject
+    if (!originalRequest || !error.response) {
+      return Promise.reject(error);
+    }
 
+    const requestUrl = originalRequest.url || '';
+    const skipRefresh = NO_REFRESH_URLS.some((path) => requestUrl.includes(path));
+
+    if (error.response.status === 401 && !originalRequest._retry && !skipRefresh) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -69,8 +76,8 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         isRefreshing = false;
+        refreshSubscribers = [];
         setAccessToken(null);
-      
         return Promise.reject(refreshError);
       }
     }
