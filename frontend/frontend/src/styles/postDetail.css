@@ -58,3 +58,100 @@
   background: var(--color-primary-hover);
   transform: translateY(-1px);
 }
+/* ===== PostDetail extras ===== */
+.post-detail-cover {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.post-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-detail-author img,
+.post-detail-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-detail-avatar-fallback {
+  display: inline-grid;
+  place-items: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+}
+
+.post-detail-paid-badge {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.post-detail-share {
+  margin-left: auto;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease-soft), color 0.2s var(--ease-soft);
+}
+.post-detail-share:hover { background: var(--color-primary); color: #fff; }
+
+.post-detail-content p {
+  margin: 0 0 1.1em;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.post-detail-error {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 0 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.post-detail-error h2 { color: var(--color-text); margin-bottom: 8px; }
+
+/* Loading skeleton */
+.skeleton-block {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--color-primary-soft) 25%, rgba(var(--color-primary-rgb), 0.16) 50%, var(--color-primary-soft) 75%);
+  background-size: 200% 100%;
+  animation: postSkeleton 1.4s ease-in-out infinite;
+}
+.skeleton-cover { height: 240px; margin-bottom: 20px; }
+.skeleton-title { height: 34px; width: 70%; margin-bottom: 14px; }
+.skeleton-meta { height: 18px; width: 40%; margin-bottom: 28px; }
+.skeleton-line { height: 14px; margin-bottom: 12px; }
+.skeleton-line.short { width: 55%; }
+@keyframes postSkeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .post-detail-cover { max-height: 240px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block { animation: none; }
+}
