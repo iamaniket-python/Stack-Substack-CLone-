@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
@@ -9,6 +9,10 @@ import {
 } from '../features/posts/postAPI';
 import '../styles/writePost.css';
 
+// Backend limit se match karna: postController dekh ke adjust karenge
+const MIN_PUBLISH_LENGTH = 20;
+const MAX_CONTENT_LENGTH = 20000;
+
 // Title column backend mein required hai (slug bhi isi se banta hai),
 // isliye content ke pehle ~60 characters se ek short title auto-generate
 // karte hain — user ko alag se title type nahi karna padta
@@ -18,12 +22,26 @@ const generateTitleFromContent = (text) => {
   return clean.length > 60 ? `${clean.slice(0, 60)}...` : clean;
 };
 
+const validateContent = (text, status) => {
+  const trimmed = text.trim();
+  if (!trimmed) return 'Kuch likho toh sahi, post khali nahi ho sakti.';
+  if (text.length > MAX_CONTENT_LENGTH) {
+    return `Post bahut lambi hai (max ${MAX_CONTENT_LENGTH} characters).`;
+  }
+  if (status === 'published' && trimmed.length < MIN_PUBLISH_LENGTH) {
+    return `Publish karne ke liye kam se kam ${MIN_PUBLISH_LENGTH} characters likho. Abhi ${trimmed.length} hain.`;
+  }
+  return '';
+};
+
 const WritePost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = !!id;
 
   const [content, setContent] = useState('');
+  const [contentError, setContentError] = useState('');
+  const [coverError, setCoverError] = useState('');
   const [isPaid, setIsPaid] = useState(false);
   const [existingCoverUrl, setExistingCoverUrl] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
@@ -31,6 +49,10 @@ const WritePost = () => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingPost, setLoadingPost] = useState(isEditMode);
+
+  const contentRef = useRef(null);
+  // State async update hota hai, isliye tez double-tap ke liye ref guard
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -60,19 +82,34 @@ const WritePost = () => {
     loadPost();
   }, [id, isEditMode, navigate]);
 
+  // Preview URL memory leak se bachne ke liye revoke
+  useEffect(() => {
+    return () => {
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+    };
+  }, [coverPreview]);
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    if (contentError) setContentError('');
+  };
+
   const handleCoverSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      toast.error('Only JPEG, PNG, or WEBP images are allowed');
+      setCoverError('Sirf JPEG, PNG ya WEBP image allowed hai.');
+      e.target.value = '';
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5MB');
+      setCoverError('Image 5MB se chhoti honi chahiye.');
+      e.target.value = '';
       return;
     }
 
+    setCoverError('');
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
   };
@@ -95,11 +132,16 @@ const WritePost = () => {
   };
 
   const savePost = async (status) => {
-    if (!content.trim()) {
-      toast.error('Likho toh sahi kuch...');
+    if (submittingRef.current) return;
+
+    const error = validateContent(content, status);
+    if (error) {
+      setContentError(error);
+      contentRef.current?.focus();
       return;
     }
 
+    submittingRef.current = true;
     setSaving(true);
     try {
       const newCoverUrl = await uploadCoverIfNeeded();
@@ -128,36 +170,79 @@ const WritePost = () => {
         toast.error(err.response.data?.message || 'Failed to save post');
       }
     } finally {
+      submittingRef.current = false;
       setSaving(false);
     }
   };
 
   const isBusy = uploading || saving;
   const displayedCover = coverPreview || existingCoverUrl;
+  const overLimit = content.length > MAX_CONTENT_LENGTH;
+  const showCounter = content.length > MAX_CONTENT_LENGTH * 0.8;
 
   if (loadingPost) return <div className="feed-loading">Loading post...</div>;
 
   return (
     <div className="write-page">
       <div className="write-container">
+        <label htmlFor="write-content" className="write-sr-only">
+          Post content
+        </label>
         <textarea
-          className="write-content"
+          id="write-content"
+          ref={contentRef}
+          className={`write-content${contentError ? ' write-content--invalid' : ''}`}
           placeholder="Kya soch rahe ho?"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           rows={10}
+          aria-invalid={contentError ? 'true' : 'false'}
+          aria-describedby={contentError ? 'write-content-error' : undefined}
         />
+
+        <div className="write-meta-row">
+          {contentError ? (
+            <p id="write-content-error" className="write-error" role="alert">
+              {contentError}
+            </p>
+          ) : (
+            <span />
+          )}
+          {showCounter && (
+            <span
+              className={`write-counter${overLimit ? ' write-counter--over' : ''}`}
+              aria-live="polite"
+            >
+              {content.length}/{MAX_CONTENT_LENGTH}
+            </span>
+          )}
+        </div>
 
         <div className="write-cover-upload">
           {displayedCover ? (
-            <img src={displayedCover} alt="Cover preview" className="write-cover-preview" />
+            <img
+              src={displayedCover}
+              alt="Is post ki cover image ka preview"
+              className="write-cover-preview"
+            />
           ) : (
             <div className="write-cover-placeholder">Add a cover image</div>
           )}
           <label className="write-cover-btn">
             {displayedCover ? 'Change image' : 'Upload image'}
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCoverSelect} hidden />
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleCoverSelect}
+              aria-describedby={coverError ? 'write-cover-error' : undefined}
+              hidden
+            />
           </label>
+          {coverError && (
+            <p id="write-cover-error" className="write-error" role="alert">
+              {coverError}
+            </p>
+          )}
         </div>
 
         <div className="write-footer">
@@ -167,10 +252,20 @@ const WritePost = () => {
           </label>
 
           <div className="write-actions">
-            <button className="write-btn-draft" onClick={() => savePost('draft')} disabled={isBusy}>
+            <button
+              type="button"
+              className="write-btn-draft"
+              onClick={() => savePost('draft')}
+              disabled={isBusy}
+            >
               {uploading ? 'Uploading...' : isEditMode ? 'Save as draft' : 'Save draft'}
             </button>
-            <button className="write-btn-publish" onClick={() => savePost('published')} disabled={isBusy}>
+            <button
+              type="button"
+              className="write-btn-publish"
+              onClick={() => savePost('published')}
+              disabled={isBusy}
+            >
               {uploading ? 'Uploading...' : saving ? 'Saving...' : isEditMode ? 'Update' : 'Publish'}
             </button>
           </div>

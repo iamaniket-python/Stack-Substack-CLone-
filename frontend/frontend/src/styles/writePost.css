@@ -15,6 +15,19 @@
   animation: fadeUp 0.4s var(--ease);
 }
 
+/* Screen-reader only label (visually hidden) */
+.write-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .write-cover-upload {
   position: relative;
   margin-bottom: 28px;
@@ -110,6 +123,47 @@
   background: transparent;
   font-family: var(--font-sans);
   overflow-wrap: anywhere;
+  border-radius: var(--radius-sm, 8px);
+  transition: box-shadow 0.2s var(--ease);
+}
+
+/* Invalid state: neeche laal underline */
+.write-content--invalid {
+  box-shadow: 0 2px 0 0 var(--color-danger, #d93025);
+}
+
+/* Error + counter row */
+.write-meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 0;
+  margin: 8px 0 20px;
+}
+
+.write-error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-danger, #d93025);
+}
+
+.write-cover-upload .write-error {
+  margin-top: 8px;
+}
+
+.write-counter {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+
+.write-counter--over {
+  color: var(--color-danger, #d93025);
 }
 
 .write-footer {
@@ -239,6 +293,9 @@
     resize: none; /* touch par resize handle ki zaroorat nahi */
   }
 
+  .write-meta-row { margin: 8px 0 16px; }
+  .write-error { font-size: 14px; }
+
   /* Footer: toggle upar, buttons neeche poori width mein */
   .write-footer {
     flex-direction: column;
@@ -281,6 +338,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .write-container { animation: none; }
+  .write-content,
   .write-btn-draft,
   .write-btn-publish,
   .write-cover-btn,

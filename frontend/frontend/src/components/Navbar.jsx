@@ -85,21 +85,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
-      <Link to="/" className="navbar-logo">
+    <nav className="navbar" aria-label="Main navigation">
+      <Link to="/" className="navbar-logo" aria-label="Stack home">
         Stack
       </Link>
 
       <div className="navbar-links">
         <NavLink to="/search" className="nav-link" title="Search" aria-label="Search">
-          <Search size={18} />
+          <Search size={18} aria-hidden="true" />
           <span className="nav-label">Search</span>
         </NavLink>
 
         {user ? (
           <>
             <NavLink to="/write" className="nav-link" title="Write" aria-label="Write">
-              <PenLine size={18} />
+              <PenLine size={18} aria-hidden="true" />
               <span className="nav-label">Write</span>
             </NavLink>
 
@@ -109,7 +109,7 @@ const Navbar = () => {
               title="Dashboard"
               aria-label="Dashboard"
             >
-              <LayoutDashboard size={18} />
+              <LayoutDashboard size={18} aria-hidden="true" />
               <span className="nav-label">Dashboard</span>
             </NavLink>
 
@@ -119,10 +119,10 @@ const Navbar = () => {
               title="Messages"
               aria-label={unreadCount > 0 ? `Messages, ${unreadCount} unread` : 'Messages'}
             >
-              <MessageCircle size={18} />
+              <MessageCircle size={18} aria-hidden="true" />
               <span className="nav-label">Messages</span>
               {unreadCount > 0 && (
-                <span className="nav-unread-badge">
+                <span className="nav-unread-badge" aria-hidden="true">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -134,13 +134,16 @@ const Navbar = () => {
               <Link
                 to={`/author/${user.id}`}
                 className="navbar-avatar"
-                title="Profile"
-                aria-label="Profile"
+                title="Your profile"
+                aria-label="Your profile"
               >
                 {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.name || 'Profile'} />
+                  <img
+                    src={user.avatar_url}
+                    alt={user.name ? `${user.name} ka profile photo` : 'Aapka profile photo'}
+                  />
                 ) : (
-                  <span className="navbar-avatar-fallback">
+                  <span className="navbar-avatar-fallback" aria-hidden="true">
                     {(user.name?.[0] || '?').toUpperCase()}
                   </span>
                 )}
@@ -148,19 +151,20 @@ const Navbar = () => {
             )}
 
             <button
+              type="button"
               onClick={handleLogout}
               className="navbar-logout"
               title="Logout"
               aria-label="Logout"
             >
-              <LogOut size={18} />
+              <LogOut size={18} aria-hidden="true" />
               <span className="nav-label">Logout</span>
             </button>
           </>
         ) : (
           <>
             <NavLink to="/login" className="nav-link" title="Log in" aria-label="Log in">
-              <LogIn size={18} />
+              <LogIn size={18} aria-hidden="true" />
               <span className="nav-label">Log in</span>
             </NavLink>
 
