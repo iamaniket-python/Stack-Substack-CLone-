@@ -13,6 +13,7 @@ const StoryViewer = ({ authorGroups, startAuthorIndex, onClose }) => {
   const [viewCount, setViewCount] = useState(null);
   const [paused, setPaused] = useState(false);
   const intervalRef = useRef(null);
+  const handlersRef = useRef({});
 
   const currentAuthor = authorGroups[authorIndex];
   const currentStory = currentAuthor?.stories[storyIndex];
@@ -48,6 +49,19 @@ const StoryViewer = ({ authorGroups, startAuthorIndex, onClose }) => {
     setProgress(0);
   };
 
+  // Keyboard handler ko hamesha latest goNext/goPrev mile (stale closure se bachne ke liye)
+  handlersRef.current = { goNext, goPrev, onClose };
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') handlersRef.current.onClose();
+      else if (e.key === 'ArrowRight') handlersRef.current.goNext();
+      else if (e.key === 'ArrowLeft') handlersRef.current.goPrev();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
   useEffect(() => {
     if (paused) {
       clearInterval(intervalRef.current);
@@ -81,14 +95,30 @@ const StoryViewer = ({ authorGroups, startAuthorIndex, onClose }) => {
 
   if (!currentStory) return null;
 
+  const handleZoneKey = (action) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
+  const storyAlt = currentStory.caption
+    ? `${currentAuthor.authorName} ki story: ${currentStory.caption}`
+    : `${currentAuthor.authorName} ki story`;
+
   return (
-    <div className="story-viewer-overlay">
+    <div
+      className="story-viewer-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${currentAuthor.authorName} ki story`}
+    >
       <div
         className="story-viewer-content"
         onMouseDown={() => setPaused(true)}
         onMouseUp={() => setPaused(false)}
       >
-        <div className="story-progress-row">
+        <div className="story-progress-row" aria-hidden="true">
           {currentAuthor.stories.map((_, idx) => (
             <div key={idx} className="story-progress-track">
               <div
@@ -102,26 +132,55 @@ const StoryViewer = ({ authorGroups, startAuthorIndex, onClose }) => {
         </div>
 
         <div className="story-viewer-header">
+          {/* Naam bagal mein hi hai, isliye avatar decorative (alt="") */}
           <img src={currentAuthor.authorAvatar} alt="" className="story-viewer-avatar" />
           <span>{currentAuthor.authorName}</span>
           {isOwnStory && viewCount !== null && (
-            <span className="story-view-count">👁 {viewCount}</span>
+            <span className="story-view-count" aria-label={`${viewCount} views`}>
+              <span aria-hidden="true">👁 {viewCount}</span>
+            </span>
           )}
-          <button onClick={onClose} className="story-close-btn">✕</button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="story-close-btn"
+            aria-label="Story band karo"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
         </div>
 
-        <img src={currentStory.media_url} alt="" className="story-viewer-image" />
+        <img src={currentStory.media_url} alt={storyAlt} className="story-viewer-image" />
 
         {currentStory.caption && <p className="story-viewer-caption">{currentStory.caption}</p>}
 
         <div className="story-nav-zones">
-          <div className="story-nav-zone-left" onClick={goPrev} />
-          <div className="story-nav-zone-right" onClick={goNext} />
+          <div
+            className="story-nav-zone-left"
+            role="button"
+            tabIndex={0}
+            aria-label="Pichhli story"
+            onClick={goPrev}
+            onKeyDown={handleZoneKey(goPrev)}
+          />
+          <div
+            className="story-nav-zone-right"
+            role="button"
+            tabIndex={0}
+            aria-label="Agli story"
+            onClick={goNext}
+            onKeyDown={handleZoneKey(goNext)}
+          />
         </div>
 
         {isOwnStory && (
-          <button className="story-delete-btn" onClick={handleDelete}>
-            🗑 Delete
+          <button
+            type="button"
+            className="story-delete-btn"
+            onClick={handleDelete}
+            aria-label="Yeh story delete karo"
+          >
+            <span aria-hidden="true">🗑</span> Delete
           </button>
         )}
       </div>

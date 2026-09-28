@@ -5,6 +5,9 @@ import { getMessagesAPI } from "../features/messages/messageAPI";
 import { getSocket } from "../socket/socketClient";
 import { ArrowLeft, Send } from "lucide-react";
 
+// Backend (messageHandler) ki limit se match karni hai, abhi andaza hai
+const MAX_MESSAGE_LENGTH = 2000;
+
 const ChatWindow = ({ conversation, onBack }) => {
   const { user } = useSelector((state) => state.auth);
   const [messages, setMessages] = useState([]);
@@ -78,7 +81,12 @@ const ChatWindow = ({ conversation, onBack }) => {
   };
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    const text = input.trim();
+    if (!text) return;
+    if (text.length > MAX_MESSAGE_LENGTH) {
+      toast.error(`Message max ${MAX_MESSAGE_LENGTH} characters ka ho sakta hai`);
+      return;
+    }
 
     const socket = getSocket();
     if (!socket) {
@@ -88,9 +96,13 @@ const ChatWindow = ({ conversation, onBack }) => {
 
     socket.emit(
       "message:send",
-      { conversationId: conversation.id, content: input },
+      { conversationId: conversation.id, content: text },
       (res) => {
-        if (!res.success) toast.error(res.message || "Failed to send message");
+        if (!res?.success) {
+          toast.error(res?.message || "Failed to send message");
+          // Fail hua to likha hua text wapas: input abhi khali hai to hi restore
+          setInput((current) => current || text);
+        }
       },
     );
 
@@ -123,8 +135,9 @@ const ChatWindow = ({ conversation, onBack }) => {
           onClick={onBack}
           aria-label="Wapas"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} aria-hidden="true" />
         </button>
+        {/* Naam bagal mein hai, isliye avatar decorative (alt="") */}
         <img
           src={conversation.other_user_avatar}
           alt=""
@@ -133,9 +146,15 @@ const ChatWindow = ({ conversation, onBack }) => {
         <span>{conversation.other_user_name}</span>
       </div>
 
-      <div className="chat-messages">
+      <div
+        className="chat-messages"
+        role="log"
+        aria-label={`${conversation.other_user_name} ke saath baatcheet`}
+      >
         {loading ? (
-          <div className="chat-loading">Loading...</div>
+          <div className="chat-loading" role="status">
+            Loading...
+          </div>
         ) : (
           <>
             {messages.map((m) => (
@@ -148,7 +167,11 @@ const ChatWindow = ({ conversation, onBack }) => {
             ))}
             {otherTyping && (
               <div className="chat-bubble-row">
-                <div className="chat-bubble chat-typing">
+                <div
+                  className="chat-bubble chat-typing"
+                  role="status"
+                  aria-label={`${conversation.other_user_name} type kar raha hai`}
+                >
                   <span></span>
                   <span></span>
                   <span></span>
@@ -166,6 +189,8 @@ const ChatWindow = ({ conversation, onBack }) => {
           onChange={(e) => handleTypingChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
+          aria-label="Message likho"
+          maxLength={MAX_MESSAGE_LENGTH}
         />
         {/* Send button input row mein */}
         <button
@@ -175,7 +200,7 @@ const ChatWindow = ({ conversation, onBack }) => {
           disabled={!input.trim()}
           aria-label="Send message"
         >
-          <Send size={18} />
+          <Send size={18} aria-hidden="true" />
         </button>
       </div>
     </div>

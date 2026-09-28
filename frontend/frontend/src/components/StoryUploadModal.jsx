@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { createStoryAPI } from '../features/stories/storyAPI';
 
@@ -7,6 +7,8 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
   const [preview, setPreview] = useState(null);
   const [caption, setCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  // State async update hota hai, isliye tez double-tap ke liye ref guard
+  const submittingRef = useRef(false);
 
   // Revoke the blob URL whenever it's replaced or the modal unmounts —
   // otherwise every selected image leaks memory for the tab's lifetime
@@ -31,10 +33,12 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(selected.type)) {
       toast.error('Only JPEG, PNG, or WEBP images are allowed');
+      e.target.value = '';
       return;
     }
     if (selected.size > 5 * 1024 * 1024) {
       toast.error('Image must be under 5MB');
+      e.target.value = '';
       return;
     }
 
@@ -46,16 +50,19 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
   };
 
   const handleUpload = async () => {
+    if (submittingRef.current) return;
+
     if (!file) {
       toast.error('Select an image first');
       return;
     }
 
+    submittingRef.current = true;
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('media', file);
-      if (caption.trim()) formData.append('caption', caption);
+      if (caption.trim()) formData.append('caption', caption.trim());
 
       await createStoryAPI(formData);
       toast.success('Story posted — visible for 24 hours');
@@ -64,23 +71,40 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to post story');
     } finally {
+      submittingRef.current = false;
       setUploading(false);
     }
   };
 
   return (
     <div className="modal-overlay" onClick={() => !uploading && onClose()}>
-      <div className="story-upload-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="story-upload-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="story-upload-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="new-msg-header">
-          <h3>Add to story</h3>
-          <button onClick={onClose} className="modal-close-btn" disabled={uploading}>✕</button>
+          <h3 id="story-upload-title">Add to story</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="modal-close-btn"
+            disabled={uploading}
+            aria-label="Band karo"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
         </div>
 
         {preview ? (
-          <img src={preview} alt="Preview" className="story-upload-preview" />
+          <img src={preview} alt="Aapki story ka preview" className="story-upload-preview" />
         ) : (
           <label className="story-upload-placeholder">
-            <span>📷 Choose an image</span>
+            <span>
+              <span aria-hidden="true">📷</span> Choose an image
+            </span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -107,13 +131,19 @@ const StoryUploadModal = ({ onClose, onUploaded }) => {
         <input
           className="story-caption-input"
           placeholder="Add a caption (optional)"
+          aria-label="Story caption (optional)"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           maxLength={280}
           disabled={uploading}
         />
 
-        <button className="story-upload-btn" onClick={handleUpload} disabled={uploading || !file}>
+        <button
+          type="button"
+          className="story-upload-btn"
+          onClick={handleUpload}
+          disabled={uploading || !file}
+        >
           {uploading ? 'Posting...' : 'Post story'}
         </button>
 

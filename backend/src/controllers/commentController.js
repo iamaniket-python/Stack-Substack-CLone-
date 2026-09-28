@@ -9,8 +9,25 @@ const {
 } = require('../models/commentModel');
 const { findPostById } = require('../models/postModel');
 
+// Frontend comment box ki limit se match honi chahiye
+const MAX_COMMENT_LENGTH = 1000;
+
 const create = asyncHandler(async (req, res) => {
   const { postId, content, parentCommentId } = req.body;
+
+  if (!postId || typeof postId !== 'string') {
+    throw new ApiError(400, 'postId is required');
+  }
+  if (typeof content !== 'string' || !content.trim()) {
+    throw new ApiError(400, 'Comment cannot be empty');
+  }
+  const trimmedContent = content.trim();
+  if (trimmedContent.length > MAX_COMMENT_LENGTH) {
+    throw new ApiError(400, `Comment must be at most ${MAX_COMMENT_LENGTH} characters`);
+  }
+  if (parentCommentId && typeof parentCommentId !== 'string') {
+    throw new ApiError(400, 'Invalid parent comment');
+  }
 
   const post = await findPostById(postId);
   if (!post) throw new ApiError(404, 'Post not found');
@@ -26,7 +43,7 @@ const create = asyncHandler(async (req, res) => {
     postId,
     userId: req.userId,
     parentCommentId,
-    content,
+    content: trimmedContent,
   });
 
   res.status(201).json({ success: true, data: { comment } });
