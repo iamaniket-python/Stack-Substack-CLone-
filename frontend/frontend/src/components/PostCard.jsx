@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -32,6 +32,16 @@ const PostCard = ({ post }) => {
   const [commentCount, setCommentCount] = useState(Number(post.comment_count) || 0);
 
   const isOwnPost = Boolean(user?.id) && user.id === post.author_id;
+
+  // Lightbox khula ho to Escape se band ho
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightboxOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [lightboxOpen]);
 
   const toggleSubscribe = async () => {
     if (!user) return navigate("/login");
@@ -82,6 +92,14 @@ const PostCard = ({ post }) => {
     setLightboxOpen(true);
   };
 
+  // Keyboard se bhi image khule (Enter / Space)
+  const handleImageKey = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setLightboxOpen(true);
+    }
+  };
+
   const handleCommentClick = (e) => {
     e.preventDefault();
     setCommentsOpen((prev) => !prev);
@@ -93,10 +111,21 @@ const PostCard = ({ post }) => {
   const excerptText =
     post.excerpt || (post.content ? post.content.slice(0, post.is_paid ? 120 : 280) : "");
 
+  // Cover ka alt: title ho to wahi, warna generic. Card mein title nahi dikhta,
+  // isliye alt hi image ka description hai.
+  const coverAlt = post.title
+    ? `Cover image: ${post.title}`
+    : `Cover image of a post by ${post.author_name || "author"}`;
+
+  // Avatar decorative hai (naam pass mein text mein hai), isliye alt="".
+  // Link ka naam aria-label se milta hai.
   const avatar = post.author_avatar ? (
     <img src={post.author_avatar} alt="" className="post-card-author-avatar" />
   ) : (
-    <span className="post-card-author-avatar post-card-author-avatar--fallback">
+    <span
+      className="post-card-author-avatar post-card-author-avatar--fallback"
+      aria-hidden="true"
+    >
       {initial}
     </span>
   );
@@ -105,7 +134,11 @@ const PostCard = ({ post }) => {
     <article className="post-card">
       <div className="post-card-header">
         {hasAuthorId ? (
-          <Link to={`/author/${post.author_id}`} className="post-card-avatar-link">
+          <Link
+            to={`/author/${post.author_id}`}
+            className="post-card-avatar-link"
+            aria-label={`${post.author_name || "Author"} ka profile`}
+          >
             {avatar}
           </Link>
         ) : (
@@ -147,10 +180,17 @@ const PostCard = ({ post }) => {
       </div>
 
       {post.cover_image_url && (
-        <div className="post-card-media" onClick={handleImageClick}>
+        <div
+          className="post-card-media"
+          onClick={handleImageClick}
+          onKeyDown={handleImageKey}
+          role="button"
+          tabIndex={0}
+          aria-label="Open image full screen"
+        >
           <img
             src={post.cover_image_url}
-            alt=""
+            alt={coverAlt}
             className="post-card-image"
             loading="lazy"
           />
@@ -166,7 +206,7 @@ const PostCard = ({ post }) => {
           aria-pressed={liked}
           aria-label={liked ? "Unlike" : "Like"}
         >
-          <Heart />
+          <Heart aria-hidden="true" />
           <span>{likeCount}</span>
         </button>
 
@@ -177,7 +217,7 @@ const PostCard = ({ post }) => {
           aria-expanded={commentsOpen}
           aria-label="Toggle comments"
         >
-          <MessageCircle />
+          <MessageCircle aria-hidden="true" />
           <span>{commentCount}</span>
         </button>
       </div>
@@ -193,17 +233,25 @@ const PostCard = ({ post }) => {
       )}
 
       {lightboxOpen && (
-        <div className="image-lightbox-overlay" onClick={() => setLightboxOpen(false)}>
+        <div
+          className="image-lightbox-overlay"
+          onClick={() => setLightboxOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image preview"
+        >
           <button
+            type="button"
             className="image-lightbox-close"
             onClick={() => setLightboxOpen(false)}
             aria-label="Close"
+            autoFocus
           >
-            <X />
+            <X aria-hidden="true" />
           </button>
           <img
             src={post.cover_image_url}
-            alt=""
+            alt={coverAlt}
             className="image-lightbox-img"
             onClick={(e) => e.stopPropagation()}
           />

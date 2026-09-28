@@ -322,3 +322,18 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+.auth-field-error {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--danger, #d93025);
+}
+
+.auth-field-hint {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted, #7a6a5c);
+}
+
+.auth-card input[aria-invalid="true"] {
+  border-color: var(--danger, #d93025);
+}
