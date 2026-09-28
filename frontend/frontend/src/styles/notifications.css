@@ -1,21 +1,31 @@
+/* =========================================================
+   Bell + badge (navbar mein)
+   ========================================================= */
 .notif-bell-wrapper {
   position: relative;
+  display: inline-flex;
 }
 
 .notif-bell-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background: transparent;
   border: none;
   font-size: 19px;
+  color: var(--color-text);
   cursor: pointer;
   position: relative;
-  padding: 8px;
   border-radius: var(--radius-full);
-  transition: background 0.25s var(--ease-soft);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.25s var(--ease-soft), transform 0.2s var(--ease);
 }
 
-.notif-bell-btn:hover {
-  background: var(--color-primary-soft);
-}
+.notif-bell-btn:hover { background: var(--color-primary-soft); }
+.notif-bell-btn:active { transform: scale(0.92); }
+.notif-bell-btn svg { width: 22px; height: 22px; }
 
 .notif-badge {
   position: absolute;
@@ -25,23 +35,38 @@
   color: #fff;
   font-size: 10px;
   font-weight: 700;
-  min-width: 17px;
-  height: 17px;
-  border-radius: 50%;
+  line-height: 1;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 3px;
+  padding: 0 4px;
   box-shadow: 0 0 0 2px var(--color-surface);
+  pointer-events: none;
+  animation: notifPop 0.3s var(--ease);
 }
 
+@keyframes notifPop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* =========================================================
+   Dropdown (purana, agar kahin use ho raha ho)
+   ========================================================= */
 .notif-dropdown {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
   width: 360px;
+  max-width: calc(100vw - 24px);
   max-height: 440px;
+  display: flex;
+  flex-direction: column;
   background: var(--color-surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-md);
@@ -55,28 +80,44 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 16px 18px;
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .notif-dropdown-header h4 {
   font-size: 15px;
   font-weight: 700;
   color: var(--color-text);
+  margin: 0;
 }
 
 .notif-mark-all {
   background: none;
   border: none;
-  color: var(--color-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  color: var(--color-primary-hover);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease-soft);
 }
+.notif-mark-all:hover { background: var(--color-primary-soft); }
+.notif-mark-all:disabled { opacity: 0.5; cursor: default; }
 
+/* =========================================================
+   List + items (dropdown aur /notifications page dono mein)
+   ========================================================= */
 .notif-list {
+  flex: 1;
+  min-height: 0;
   max-height: 380px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .notif-item {
@@ -84,52 +125,133 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 18px;
+  padding-right: 34px; /* unread dot ke liye jagah */
   cursor: pointer;
-  transition: background 0.2s var(--ease-soft);
   position: relative;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.06);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease-soft);
 }
 
-.notif-item:hover {
-  background: var(--color-primary-soft);
-}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--color-primary-soft); }
+.notif-item:active { background: rgba(var(--color-primary-rgb), 0.14); }
 
 .notif-item.unread {
-  background: rgba(99, 102, 241, 0.04);
+  background: rgba(var(--color-primary-rgb), 0.06);
 }
+.notif-item.unread:hover { background: var(--color-primary-soft); }
 
 .notif-item-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  background: var(--color-primary-soft);
+}
+
+/* Avatar na ho to gradient circle (JSX mein span.notif-item-avatar--fallback lagao) */
+.notif-item-avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+}
+
+.notif-item-body {
+  flex: 1;
+  min-width: 0; /* lamba text flex mein shrink ho sake */
 }
 
 .notif-item-body p {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--color-text);
-  margin-bottom: 3px;
-  line-height: 1.4;
+  margin: 0 0 3px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
+.notif-item.unread .notif-item-body p { font-weight: 600; }
+
 .notif-item-body span {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--color-text-faint);
 }
 
 .notif-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.18);
   position: absolute;
   right: 16px;
-  top: 18px;
+  top: 20px;
 }
 
 .notif-empty {
   text-align: center;
-  padding: 40px 20px;
+  padding: 48px 20px;
   color: var(--color-text-faint);
-  font-size: 13.5px;
+  font-size: 14px;
+}
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+@media (max-width: 1024px) {
+  .notif-dropdown { width: 340px; }
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+@media (max-width: 768px) {
+  .notif-bell-btn { width: 44px; height: 44px; } /* comfortable tap target */
+
+  /* Dropdown chhoti screen par: navbar ke neeche poori width ka panel */
+  .notif-dropdown {
+    position: fixed;
+    top: 64px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 64px - var(--bottom-navbar-h, 60px) - 20px);
+    border-radius: var(--radius-lg);
+  }
+  .notif-list { max-height: none; }
+
+  .notif-dropdown-header { padding: 14px 16px; }
+
+  /* Items: bade tap target, thoda compact padding */
+  .notif-item {
+    gap: 12px;
+    padding: 14px 16px;
+    padding-right: 32px;
+    min-height: 64px;
+  }
+  .notif-item-avatar { width: 42px; height: 42px; }
+  .notif-item-body p { font-size: 14.5px; }
+  .notif-dot { right: 14px; top: 22px; }
+
+  .notif-empty { padding: 40px 16px; }
+}
+
+/* Bahut chhoti screens */
+@media (max-width: 380px) {
+  .notif-item { padding: 12px 12px; padding-right: 28px; }
+  .notif-item-avatar { width: 38px; height: 38px; }
+  .notif-item-body p { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif-dropdown,
+  .notif-badge { animation: none; }
+  .notif-bell-btn,
+  .notif-item,
+  .notif-mark-all { transition: none; }
 }
