@@ -12,14 +12,14 @@ import ChatWindow from '../components/ChatWindow';
 import NewMessageModal from '../components/NewMessageModal';
 import '../styles/messages.css';
 
+const notifyUnreadChanged = () => window.dispatchEvent(new Event('messages:changed'));
+
 const Messages = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const startUserId = searchParams.get('user');
 
   const [conversations, setConversations] = useState([]);
-  // Poora object nahi, sirf id: list reload hone par active chat ka data apne aap fresh rahta hai
   const [activeId, setActiveId] = useState(null);
-  // Nayi conversation jo abhi list mein nahi aayi (0 messages), uske liye temporary object
   const [draftConv, setDraftConv] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showNewMsgModal, setShowNewMsgModal] = useState(false);
@@ -29,6 +29,11 @@ const Messages = () => {
     (draftConv?.id === activeId ? draftConv : null);
 
   const isChatOpen = Boolean(active);
+
+  // Jo chat khuli hai uska unread badge dikhana nahi (wo padha ja raha hai)
+  const listForDisplay = conversations.map((c) =>
+    c.id === activeId ? { ...c, unread_count: 0 } : c
+  );
 
   const loadConversations = useCallback(async () => {
     try {
@@ -60,8 +65,7 @@ const Messages = () => {
     [loadConversations]
   );
 
-  // Mobile keyboard fix: chat khula ho to page scroll lock + visual viewport ki asli height/offset
-  // CSS variables mein daalo (keyboard khulne par bhi input aur header screen ke andar rahein)
+  // Mobile keyboard fix: chat khula ho to visual viewport ki asli height/offset
   useEffect(() => {
     if (!isChatOpen) return;
 
@@ -74,7 +78,6 @@ const Messages = () => {
       root.style.setProperty('--vvh', `${height}px`);
       root.style.setProperty('--vvtop', `${top}px`);
 
-      // Keyboard ke saath latest message hamesha dikhe
       const list = document.querySelector('.chat-messages');
       if (list) list.scrollTop = list.scrollHeight;
     };
@@ -100,33 +103,60 @@ const Messages = () => {
     };
   }, [isChatOpen]);
 
-  // Pehli baar list load: loader sirf yahin dikhta hai
+  // Pehli baar list load
   useEffect(() => {
-    loadConversations().finally(() => setInitialLoading(false));
+    loadConversations()
+      .then(notifyUnreadChanged)
+      .finally(() => setInitialLoading(false));
   }, [loadConversations]);
 
-  // /messages?user=ID se aaye (jaise author profile ka "Message" button)
+  // /messages?user=ID se aaye (author profile ka "Message" button)
   useEffect(() => {
     if (!startUserId) return;
     startConversationWith(startUserId).finally(() => {
-      // URL saaf karo: warna refresh par ya back dabane par chat dobara khul jayegi
       setSearchParams({}, { replace: true });
     });
   }, [startUserId, startConversationWith, setSearchParams]);
 
-  // Naya message aaye to list refresh (unread badge + last message)
+  // Naya message aaye to list refresh. Socket late ho to retry se listener lagta hai.
   useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-    const handler = () => loadConversations();
-    socket.on('message:new', handler);
-    return () => socket.off('message:new', handler);
+    const handler = async () => {
+      await loadConversations();
+      notifyUnreadChanged();
+    };
+
+    let attachedSocket = null;
+    const attach = () => {
+      const s = getSocket();
+      if (s && s !== attachedSocket) {
+        if (attachedSocket) attachedSocket.off('message:new', handler);
+        s.on('message:new', handler);
+        attachedSocket = s;
+      }
+    };
+
+    attach();
+    const retryTimer = setInterval(attach, 1500);
+
+    return () => {
+      clearInterval(retryTimer);
+      if (attachedSocket) attachedSocket.off('message:new', handler);
+    };
   }, [loadConversations]);
+
+  // Chat kholne par messages backend par read mark hote hain: list aur navbar refresh karo
+  useEffect(() => {
+    if (!activeId) return;
+    const t = setTimeout(async () => {
+      await loadConversations();
+      notifyUnreadChanged();
+    }, 800);
+    return () => clearTimeout(t);
+  }, [activeId, loadConversations]);
 
   if (initialLoading) return <div className="feed-loading">Loading messages...</div>;
 
   return (
-    // has-active: mobile par list chhupa kar chat dikhata hai (CSS mein)
     <div className={`messages-page ${isChatOpen ? 'has-active' : ''}`}>
       <div className="messages-sidebar">
         <div className="messages-sidebar-header">
@@ -141,7 +171,7 @@ const Messages = () => {
           </button>
         </div>
         <ConversationList
-          conversations={conversations}
+          conversations={listForDisplay}
           activeId={activeId}
           onSelect={(conv) => setActiveId(conv.id)}
         />

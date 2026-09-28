@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-// lucide icons: mobile par text hide hoga, icon hi dikhega
 import {
   Search,
   PenLine,
@@ -12,7 +11,8 @@ import {
   LogIn,
 } from 'lucide-react';
 import { logoutUser } from '../features/auth/authSlice';
-import { connectSocket, disconnectSocket } from '../socket/socketClient';
+import { getConversationsAPI } from '../features/messages/messageAPI';
+import { connectSocket, disconnectSocket, getSocket } from '../socket/socketClient';
 import NotificationBell from './NotificationBell';
 import '../styles/navbar.css';
 
@@ -20,11 +20,60 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (user) connectSocket();
     return () => {
       if (!user) disconnectSocket();
+    };
+  }, [user]);
+
+  // Total unread messages: Messages icon ke badge ke liye
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    let cancelled = false;
+    let attachedSocket = null;
+
+    const refresh = async () => {
+      try {
+        const { data } = await getConversationsAPI();
+        if (cancelled) return;
+        const total = data.data.conversations.reduce(
+          (sum, c) => sum + (Number(c.unread_count) || 0),
+          0
+        );
+        setUnreadCount(total);
+      } catch {
+        // badge silent fail: navbar par toast nahi chahiye
+      }
+    };
+
+    // Socket late connect ho to bhi listener lag jaye
+    const attach = () => {
+      const s = getSocket();
+      if (s && s !== attachedSocket) {
+        if (attachedSocket) attachedSocket.off('message:new', refresh);
+        s.on('message:new', refresh);
+        attachedSocket = s;
+      }
+    };
+
+    refresh();
+    attach();
+    const retryTimer = setInterval(attach, 1500);
+    // Messages page / ChatWindow padhne ke baad ye event bhejte hain
+    window.addEventListener('messages:changed', refresh);
+
+    return () => {
+      cancelled = true;
+      clearInterval(retryTimer);
+      window.removeEventListener('messages:changed', refresh);
+      if (attachedSocket) attachedSocket.off('message:new', refresh);
     };
   }, [user]);
 
@@ -35,7 +84,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // NavLink current page par apne aap "active" class laga deta hai
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-logo">
@@ -43,7 +91,6 @@ const Navbar = () => {
       </Link>
 
       <div className="navbar-links">
-        {/* title + aria-label: text hide hone par bhi accessibility aur hover tooltip milega */}
         <NavLink to="/search" className="nav-link" title="Search" aria-label="Search">
           <Search size={18} />
           <span className="nav-label">Search</span>
@@ -68,17 +115,21 @@ const Navbar = () => {
 
             <NavLink
               to="/messages"
-              className="nav-link"
+              className="nav-link nav-link--with-badge"
               title="Messages"
-              aria-label="Messages"
+              aria-label={unreadCount > 0 ? `Messages, ${unreadCount} unread` : 'Messages'}
             >
               <MessageCircle size={18} />
               <span className="nav-label">Messages</span>
+              {unreadCount > 0 && (
+                <span className="nav-unread-badge">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
 
             <NotificationBell />
 
-            {/* user.id na ho to /author/undefined ka link hi nahi banega (issue #3 ka guard) */}
             {user.id && (
               <Link
                 to={`/author/${user.id}`}
@@ -113,7 +164,6 @@ const Navbar = () => {
               <span className="nav-label">Log in</span>
             </NavLink>
 
-            {/* Sign up CTA mobile par bhi text ke saath rahega */}
             <Link to="/register" className="navbar-cta">
               Sign up
             </Link>
