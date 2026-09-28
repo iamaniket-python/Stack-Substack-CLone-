@@ -264,3 +264,48 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* ===== Comment avatar fix ===== */
+.comment-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.comment-item--reply { margin-left: 32px; }
+
+.comment-avatar-link { flex-shrink: 0; line-height: 0; }
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+  background: var(--color-primary-soft);
+}
+
+.comment-avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+}
+
+.comment-body { flex: 1; min-width: 0; }
+
+.comment-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment-actions a.comment-action-btn { text-decoration: none; }
+
+.comment-reply-box input { font-size: 16px; min-width: 0; } /* iPhone zoom rokne ke liye */
+
+@media (max-width: 768px) {
+  .comment-item--reply { margin-left: 14px; }
+  .comment-avatar { width: 32px; height: 32px; }
+}

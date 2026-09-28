@@ -12,24 +12,46 @@ const timeAgo = (dateStr) => {
   return `${Math.floor(hrs / 24)}d ago`;
 };
 
+// Indent sirf itne level tak, uske baad flat (mobile par jagah bachti hai)
+const MAX_INDENT_DEPTH = 3;
+
 const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) => {
   const { user } = useSelector((state) => state.auth);
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyText, setReplyText] = useState('');
+  const [imgFailed, setImgFailed] = useState(false);
 
   const canDelete = user && (user.id === comment.user_id || user.id === postAuthorId);
+  const initial = comment.author_name?.[0]?.toUpperCase() || '?';
+  const showImage = Boolean(comment.author_avatar) && !imgFailed;
+  const isIndented = depth > 0 && depth <= MAX_INDENT_DEPTH;
 
   const handleReplySubmit = () => {
     if (!replyText.trim()) return;
-    onReply(comment.id, replyText);
+    onReply(comment.id, replyText.trim());
     setReplyText('');
     setShowReplyBox(false);
   };
 
+  const avatar = showImage ? (
+    <img
+      src={comment.author_avatar}
+      alt={comment.author_name || ''}
+      className="comment-avatar"
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setImgFailed(true)}
+    />
+  ) : (
+    <span className="comment-avatar comment-avatar--fallback" aria-hidden="true">
+      {initial}
+    </span>
+  );
+
   return (
-    <div className="comment-item" style={{ marginLeft: depth > 0 ? 32 : 0 }}>
-      <Link to={`/author/${comment.user_id}`}>
-        <img src={comment.author_avatar} alt={comment.author_name} className="comment-avatar" />
+    <div className={`comment-item ${isIndented ? 'comment-item--reply' : ''}`}>
+      <Link to={`/author/${comment.user_id}`} className="comment-avatar-link">
+        {avatar}
       </Link>
 
       <div className="comment-body">
@@ -44,13 +66,25 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
         <p className="comment-text">{comment.content}</p>
 
         <div className="comment-actions">
-          {user && (
-            <button onClick={() => setShowReplyBox((s) => !s)} className="comment-action-btn">
+          {user ? (
+            <button
+              type="button"
+              onClick={() => setShowReplyBox((s) => !s)}
+              className="comment-action-btn"
+            >
               Reply
             </button>
+          ) : (
+            <Link to="/login" className="comment-action-btn">
+              Reply
+            </Link>
           )}
           {canDelete && (
-            <button onClick={() => onDelete(comment.id)} className="comment-action-btn comment-delete">
+            <button
+              type="button"
+              onClick={() => onDelete(comment.id)}
+              className="comment-action-btn comment-delete"
+            >
               Delete
             </button>
           )}
@@ -63,8 +97,11 @@ const CommentItem = ({ comment, postAuthorId, onReply, onDelete, depth = 0 }) =>
               onChange={(e) => setReplyText(e.target.value)}
               placeholder={`Reply to ${comment.author_name}...`}
               onKeyDown={(e) => e.key === 'Enter' && handleReplySubmit()}
+              autoFocus
             />
-            <button onClick={handleReplySubmit}>Post</button>
+            <button type="button" onClick={handleReplySubmit} disabled={!replyText.trim()}>
+              Post
+            </button>
           </div>
         )}
 
