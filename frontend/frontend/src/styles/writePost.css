@@ -1,5 +1,6 @@
 .write-page {
   min-height: calc(100vh - 72px);
+  min-height: calc(100dvh - 72px);
   background: var(--color-bg);
   padding: 48px 24px;
 }
@@ -20,6 +21,7 @@
 }
 
 .write-cover-preview {
+  display: block;
   width: 100%;
   height: 220px;
   object-fit: cover;
@@ -36,6 +38,8 @@
   justify-content: center;
   color: var(--color-text-faint);
   font-size: 14px;
+  text-align: center;
+  padding: 0 16px;
 }
 
 .write-cover-btn {
@@ -48,6 +52,7 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.2s var(--ease);
 }
 
@@ -59,12 +64,15 @@
   width: 100%;
   border: none;
   outline: none;
+  font-family: var(--font-sans);
   font-size: 32px;
   font-weight: 800;
+  line-height: 1.25;
   color: var(--color-text);
   margin-bottom: 14px;
   letter-spacing: -0.6px;
   background: transparent;
+  overflow-wrap: anywhere;
 }
 
 .write-title::placeholder {
@@ -75,16 +83,24 @@
   width: 100%;
   border: none;
   outline: none;
+  font-family: var(--font-sans);
   font-size: 15px;
   color: var(--color-text-muted);
   margin-bottom: 24px;
   background: transparent;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 12px;
+  transition: border-color 0.25s var(--ease-soft);
+}
+
+.write-excerpt:focus {
+  border-bottom-color: var(--color-primary);
 }
 
 .write-content {
+  display: block;
   width: 100%;
+  min-height: 280px;
   border: none;
   outline: none;
   resize: vertical;
@@ -93,12 +109,14 @@
   color: var(--color-text);
   background: transparent;
   font-family: var(--font-sans);
+  overflow-wrap: anywhere;
 }
 
 .write-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-top: 28px;
   padding-top: 24px;
   border-top: 1px solid var(--color-border);
@@ -112,12 +130,13 @@
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .write-paid-toggle input {
   width: 16px;
   height: 16px;
-  accent-color: var(--color-accent);
+  accent-color: var(--color-primary);
 }
 
 .write-actions {
@@ -133,6 +152,8 @@
   font-weight: 700;
   cursor: pointer;
   border: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.2s var(--ease), transform 0.15s var(--ease);
 }
 
@@ -159,4 +180,109 @@
 .write-btn-publish:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+@media (max-width: 1024px) {
+  .write-page { padding: 32px 20px; }
+  .write-container { padding: 32px; }
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+@media (max-width: 768px) {
+  .write-page {
+    min-height: calc(100dvh - 60px);
+    padding: 12px 12px;
+    /* bottom-fixed navbar ke peeche footer na chhupe */
+    padding-bottom: calc(var(--bottom-navbar-h, 60px) + 16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Card ki jagah full-width, halka look: screen ka zyada hissa likhne ko milta hai */
+  .write-container {
+    padding: 20px 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .write-cover-upload { margin-bottom: 20px; }
+  .write-cover-preview { height: 180px; }
+  .write-cover-placeholder { height: 120px; font-size: 13px; }
+
+  /* Cover button poori width, tap karna aasan */
+  .write-cover-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+
+  /* iPhone Safari: font 16px se kam ho to focus par page zoom ho jata hai */
+  .write-title {
+    font-size: 24px;
+    letter-spacing: -0.4px;
+    margin-bottom: 10px;
+  }
+  .write-excerpt {
+    font-size: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+  }
+  .write-content {
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 240px;
+    resize: none; /* touch par resize handle ki zaroorat nahi */
+  }
+
+  /* Footer: toggle upar, buttons neeche poori width mein */
+  .write-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 18px;
+  }
+
+  .write-paid-toggle {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .write-paid-toggle input {
+    width: 20px;
+    height: 20px;
+  }
+
+  .write-actions {
+    gap: 10px;
+  }
+  .write-btn-draft,
+  .write-btn-publish {
+    flex: 1;
+    min-height: 48px; /* comfortable tap target */
+    padding: 0 16px;
+    font-size: 15px;
+  }
+  /* touch par hover-lift nahi */
+  .write-btn-publish:hover:not(:disabled) { transform: none; }
+  .write-btn-publish:active:not(:disabled) { transform: scale(0.98); }
+  .write-btn-draft:active:not(:disabled) { transform: scale(0.98); }
+}
+
+/* Bahut chhoti screens */
+@media (max-width: 380px) {
+  .write-container { padding: 16px 12px; }
+  .write-title { font-size: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .write-container { animation: none; }
+  .write-btn-draft,
+  .write-btn-publish,
+  .write-cover-btn,
+  .write-excerpt { transition: none; }
 }
