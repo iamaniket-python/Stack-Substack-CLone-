@@ -9,8 +9,8 @@ import "../styles/feed.css";
 
 const timeAgo = (date) => {
   const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (s < 3600) return `${Math.max(1, Math.floor(s / 60))} min pehle`;
-  if (s < 86400) return `${Math.floor(s / 3600)} ghante pehle`;
+  if (s < 3600) return `${Math.max(1, Math.floor(s / 60))} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} hours ago`;
   return `${Math.floor(s / 86400)} din pehle`;
 };
 
