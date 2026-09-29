@@ -405,7 +405,6 @@ Add `VITE_API_URL` and `VITE_SOCKET_URL` (Config type), then deploy.
 ## Roadmap
 
 **Not built yet**
-- [ ] Forgot password flow
 - [ ] Email flows (verification, password reset, notifications). `is_verified` column exists but is unused.
 - [ ] Recurring billing. Currently a one-time Razorpay order, no auto-renew.
 - [ ] Rich text editor with `sanitize-html` content sanitization (content is plain text today)
