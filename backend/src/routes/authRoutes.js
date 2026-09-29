@@ -8,10 +8,7 @@ const {
   resetPassword,
   directResetPassword,
 } = require('../controllers/passwordResetController');
-const {
-  forgotPassword,
-  resetPassword,
-} = require('../controllers/passwordResetController');
+
 
 const router = express.Router();
 
