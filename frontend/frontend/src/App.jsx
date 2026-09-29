@@ -5,6 +5,8 @@ import { fetchCurrentUser } from './features/auth/authSlice';
 import Navbar from './components/Navbar';
 import Login from "./pages/Authentication/Login";
 import Register from './pages/Authentication/Register';
+import ForgotPassword from './pages/Authentication/ForgotPassword';
+import ResetPassword from './pages/Authentication/ResetPassword';
 import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
 import WritePost from './pages/WritePost';
@@ -34,6 +36,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/post/:slug" element={<PostDetail />} />
         <Route path="/author/:id" element={<AuthorProfile />} />
         <Route path="/search" element={<Search />} />

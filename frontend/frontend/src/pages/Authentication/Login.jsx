@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { Eye, EyeOff, TriangleAlert } from 'lucide-react';
-import { loginUser, clearAuthError } from '../../features/auth/authSlice';
-import '../../styles/auth.css';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Eye, EyeOff, TriangleAlert } from "lucide-react";
+import { loginUser, clearAuthError } from "../../features/auth/authSlice";
+import "../../styles/auth-extras.css";
+import "../../styles/auth.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
-  const [fieldError, setFieldError] = useState('');
+  const [fieldError, setFieldError] = useState("");
   const [isSlow, setIsSlow] = useState(false);
 
   const dispatch = useDispatch();
@@ -20,10 +21,10 @@ const Login = () => {
   const location = useLocation();
   const { status, error } = useSelector((state) => state.auth);
 
-  const isLoading = status === 'loading';
+  const isLoading = status === "loading";
 
   // ProtectedRoute ne jahan se bheja tha wahin wapas jao, warna home
-  const redirectTo = location.state?.from?.pathname || '/';
+  const redirectTo = location.state?.from?.pathname || "/";
 
   // Page chhodte waqt purana error saaf karo
   useEffect(() => {
@@ -45,12 +46,12 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (fieldError) setFieldError('');
+    if (fieldError) setFieldError("");
     if (error) dispatch(clearAuthError());
   };
 
   const handlePasswordKey = (e) => {
-    setCapsLockOn(e.getModifierState && e.getModifierState('CapsLock'));
+    setCapsLockOn(e.getModifierState && e.getModifierState("CapsLock"));
   };
 
   const handleSubmit = async (e) => {
@@ -60,25 +61,25 @@ const Login = () => {
     const email = formData.email.trim();
 
     if (!EMAIL_REGEX.test(email)) {
-      setFieldError('Please enter a valid email address');
+      setFieldError("Please enter a valid email address");
       return;
     }
     if (!formData.password) {
-      setFieldError('Please enter your password');
+      setFieldError("Please enter your password");
       return;
     }
 
     dispatch(clearAuthError());
 
     const result = await dispatch(
-      loginUser({ email, password: formData.password })
+      loginUser({ email, password: formData.password }),
     );
 
     if (loginUser.fulfilled.match(result)) {
-      toast.success('Welcome back!');
+      toast.success("Welcome back!");
       navigate(redirectTo, { replace: true });
     } else {
-      toast.error(result.payload || 'Login failed');
+      toast.error(result.payload || "Login failed");
     }
   };
 
@@ -88,7 +89,9 @@ const Login = () => {
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit} noValidate>
         <h1>Welcome back</h1>
-        <p className="auth-card-subtitle">Log in to continue reading and writing.</p>
+        <p className="auth-card-subtitle">
+          Log in to continue reading and writing.
+        </p>
 
         {shownError && (
           <p className="auth-error" role="alert">
@@ -114,7 +117,7 @@ const Login = () => {
           <input
             id="password"
             name="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
@@ -128,7 +131,7 @@ const Login = () => {
             type="button"
             className="password-toggle-btn"
             onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? "Hide password" : "Show password"}
             tabIndex={-1}
           >
             {showPassword ? <EyeOff /> : <Eye />}
@@ -140,7 +143,11 @@ const Login = () => {
             <TriangleAlert size={14} /> Caps Lock is on
           </p>
         )}
-
+        <div className="auth-forgot-row">
+          <Link to="/forgot-password" className="auth-forgot-link">
+            Forgot password?
+          </Link>
+        </div>
         <button type="submit" disabled={isLoading}>
           {isLoading ? (
             <span className="auth-btn-content">
@@ -148,13 +155,14 @@ const Login = () => {
               Logging in...
             </span>
           ) : (
-            'Log in'
+            "Log in"
           )}
         </button>
 
         {isSlow && (
           <p className="auth-slow-hint" role="status">
-            Server jag raha hai, pehli baar 30-60 sec lag sakte hain. Please wait...
+            Server jag raha hai, pehli baar 30-60 sec lag sakte hain. Please
+            wait...
           </p>
         )}
 
