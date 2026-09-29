@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   Search,
-  PenLine,
+  Plus,
+  Home,
   LayoutDashboard,
   MessageCircle,
   LogOut,
@@ -20,6 +21,7 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -27,6 +29,12 @@ const Navbar = () => {
     return () => {
       if (!user) disconnectSocket();
     };
+  }, [user]);
+
+  // Bottom bar sirf logged-in user ko dikhta hai: page ke neeche jagah chhodo
+  useEffect(() => {
+    document.body.classList.toggle('has-bottom-nav', Boolean(user));
+    return () => document.body.classList.remove('has-bottom-nav');
   }, [user]);
 
   // Total unread messages: Messages icon ke badge ke liye
@@ -53,7 +61,6 @@ const Navbar = () => {
       }
     };
 
-    // Socket late connect ho to bhi listener lag jaye
     const attach = () => {
       const s = getSocket();
       if (s && s !== attachedSocket) {
@@ -66,7 +73,6 @@ const Navbar = () => {
     refresh();
     attach();
     const retryTimer = setInterval(attach, 1500);
-    // Messages page / ChatWindow padhne ke baad ye event bhejte hain
     window.addEventListener('messages:changed', refresh);
 
     return () => {
@@ -84,23 +90,72 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const onWritePage = location.pathname.startsWith('/write');
+
   return (
-    <nav className="navbar" aria-label="Main navigation">
-      <Link to="/" className="navbar-logo" aria-label="Stack home">
-        Stack
-      </Link>
+    <>
+      {/* ---------- TOP BAR: logo left, search + profile right ---------- */}
+      <header className="navbar">
+        <Link to="/" className="navbar-logo" aria-label="Stack home">
+          Stack
+        </Link>
 
-      <div className="navbar-links">
-        <NavLink to="/search" className="nav-link" title="Search" aria-label="Search">
-          <Search size={18} aria-hidden="true" />
-          <span className="nav-label">Search</span>
-        </NavLink>
+        <div className="navbar-actions">
+          <NavLink to="/search" className="top-icon" title="Search" aria-label="Search">
+            <Search size={20} aria-hidden="true" />
+          </NavLink>
 
-        {user ? (
-          <>
-            <NavLink to="/write" className="nav-link" title="Write" aria-label="Write">
-              <PenLine size={18} aria-hidden="true" />
-              <span className="nav-label">Write</span>
+          {user ? (
+            <>
+              {user.id && (
+                <Link
+                  to={`/author/${user.id}`}
+                  className="navbar-avatar"
+                  title="Your profile"
+                  aria-label="Your profile"
+                >
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.name ? `${user.name} ka profile photo` : 'Aapka profile photo'}
+                    />
+                  ) : (
+                    <span className="navbar-avatar-fallback" aria-hidden="true">
+                      {(user.name?.[0] || '?').toUpperCase()}
+                    </span>
+                  )}
+                </Link>
+              )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="top-icon top-icon--danger"
+                title="Logout"
+                aria-label="Logout"
+              >
+                <LogOut size={19} aria-hidden="true" />
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className="top-icon" title="Log in" aria-label="Log in">
+                <LogIn size={20} aria-hidden="true" />
+              </NavLink>
+              <Link to="/register" className="navbar-cta">
+                Sign up
+              </Link>
+            </>
+          )}
+        </div>
+      </header>
+
+      {/* ---------- BOTTOM BAR + FLOATING + (sirf logged-in) ---------- */}
+      {user && (
+        <>
+          <nav className="bottom-nav" aria-label="Main navigation">
+            <NavLink to="/" end className="nav-link" title="Home" aria-label="Home">
+              <Home size={22} aria-hidden="true" />
             </NavLink>
 
             <NavLink
@@ -109,18 +164,16 @@ const Navbar = () => {
               title="Dashboard"
               aria-label="Dashboard"
             >
-              <LayoutDashboard size={18} aria-hidden="true" />
-              <span className="nav-label">Dashboard</span>
+              <LayoutDashboard size={22} aria-hidden="true" />
             </NavLink>
 
             <NavLink
               to="/messages"
               className="nav-link nav-link--with-badge"
-              title="Messages"
-              aria-label={unreadCount > 0 ? `Messages, ${unreadCount} unread` : 'Messages'}
+              title="Chat"
+              aria-label={unreadCount > 0 ? `Chat, ${unreadCount} unread` : 'Chat'}
             >
-              <MessageCircle size={18} aria-hidden="true" />
-              <span className="nav-label">Messages</span>
+              <MessageCircle size={22} aria-hidden="true" />
               {unreadCount > 0 && (
                 <span className="nav-unread-badge" aria-hidden="true">
                   {unreadCount > 99 ? '99+' : unreadCount}
@@ -129,52 +182,16 @@ const Navbar = () => {
             </NavLink>
 
             <NotificationBell />
+          </nav>
 
-            {user.id && (
-              <Link
-                to={`/author/${user.id}`}
-                className="navbar-avatar"
-                title="Your profile"
-                aria-label="Your profile"
-              >
-                {user.avatar_url ? (
-                  <img
-                    src={user.avatar_url}
-                    alt={user.name ? `${user.name} ka profile photo` : 'Aapka profile photo'}
-                  />
-                ) : (
-                  <span className="navbar-avatar-fallback" aria-hidden="true">
-                    {(user.name?.[0] || '?').toUpperCase()}
-                  </span>
-                )}
-              </Link>
-            )}
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="navbar-logout"
-              title="Logout"
-              aria-label="Logout"
-            >
-              <LogOut size={18} aria-hidden="true" />
-              <span className="nav-label">Logout</span>
-            </button>
-          </>
-        ) : (
-          <>
-            <NavLink to="/login" className="nav-link" title="Log in" aria-label="Log in">
-              <LogIn size={18} aria-hidden="true" />
-              <span className="nav-label">Log in</span>
-            </NavLink>
-
-            <Link to="/register" className="navbar-cta">
-              Sign up
+          {!onWritePage && (
+            <Link to="/write" className="fab" title="Write a post" aria-label="Write a post">
+              <Plus size={28} aria-hidden="true" />
             </Link>
-          </>
-        )}
-      </div>
-    </nav>
+          )}
+        </>
+      )}
+    </>
   );
 };
 
