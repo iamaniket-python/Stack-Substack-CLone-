@@ -15,12 +15,9 @@ const env = require('../config/env');
 const RESET_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-// Email exist kare ya na kare, jawab hamesha same: account enumeration se bachne ke liye
 const GENERIC_MESSAGE =
   'Agar is email se account hai, to password reset link bhej diya gaya hai.';
 
-// Abhi email provider nahi hai: development mein link console mein print hota hai.
-// Production mein token kabhi log nahi karte.
 const deliverResetLink = async (user, link) => {
   if (!env.isProduction) {
     console.log(`\n[password-reset] ${user.email}\n${link}\n`);
@@ -34,7 +31,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   const user = await findUserByEmail(email);
   if (user) {
-    const rawToken = crypto.randomBytes(32).toString('hex'); // 64 hex chars
+    const rawToken = crypto.randomBytes(32).toString('hex');
     await createResetToken({
       userId: user.id,
       tokenHash: hashToken(rawToken),
@@ -56,11 +53,28 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 12);
   await updateUserPassword(userId, passwordHash);
-
-  // Saare purane sessions band: agar kisi ne session chura liya tha to woh bhi khatam
   await revokeAllUserTokens(userId);
 
   res.json({ success: true, message: 'Password badal gaya. Ab naye password se login karo.' });
 });
 
-module.exports = { forgotPassword, resetPassword };
+// TEMPORARY: email verification ke bina direct reset.
+// Sirf tab chalta hai jab ALLOW_DIRECT_RESET=true ho. Real email aane par ye env hata do.
+const directResetPassword = asyncHandler(async (req, res) => {
+  if (process.env.ALLOW_DIRECT_RESET !== 'true') {
+    throw new ApiError(403, 'Direct password reset band hai');
+  }
+
+  const { email, password } = req.body;
+
+  const user = await findUserByEmail(email);
+  if (!user) throw new ApiError(404, 'Is email se koi account nahi mila');
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  await updateUserPassword(user.id, passwordHash);
+  await revokeAllUserTokens(user.id);
+
+  res.json({ success: true, message: 'Password badal gaya. Ab naye password se login karo.' });
+});
+
+module.exports = { forgotPassword, resetPassword, directResetPassword };

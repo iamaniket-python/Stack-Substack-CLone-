@@ -4,12 +4,10 @@ const validate = require('../middlewares/validate');
 const protect = require('../middlewares/authMiddleware');
 const { authLimiter } = require('../middlewares/rateLimiter');
 const {
-  register,
-  login,
-  refresh,
-  logout,
-  getMe,
-} = require('../controllers/authController');
+  forgotPassword,
+  resetPassword,
+  directResetPassword,
+} = require('../controllers/passwordResetController');
 const {
   forgotPassword,
   resetPassword,
@@ -55,6 +53,15 @@ router.post(
   resetPassword
 );
 
+router.post(
+  '/reset-password-direct', authLimiter,
+  [
+    body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  ],
+  validate,
+  directResetPassword
+);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 router.get('/me', protect, getMe);

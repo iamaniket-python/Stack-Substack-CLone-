@@ -5,3 +5,6 @@ export const forgotPasswordAPI = (email) =>
 
 export const resetPasswordAPI = ({ token, password }) =>
   axiosInstance.post('/auth/reset-password', { token, password });
+
+export const directResetPasswordAPI = ({ email, password }) =>
+  axiosInstance.post('/auth/reset-password-direct', { email, password });
