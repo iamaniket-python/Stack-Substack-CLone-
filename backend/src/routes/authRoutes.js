@@ -4,11 +4,17 @@ const validate = require('../middlewares/validate');
 const protect = require('../middlewares/authMiddleware');
 const { authLimiter } = require('../middlewares/rateLimiter');
 const {
+  register,
+  login,
+  refresh,
+  logout,
+  getMe,
+} = require('../controllers/authController');
+const {
   forgotPassword,
   resetPassword,
   directResetPassword,
 } = require('../controllers/passwordResetController');
-
 
 const router = express.Router();
 
@@ -59,6 +65,7 @@ router.post(
   validate,
   directResetPassword
 );
+
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 router.get('/me', protect, getMe);
