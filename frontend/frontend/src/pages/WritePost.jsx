@@ -25,12 +25,7 @@ const generateTitleFromContent = (text) => {
 const validateContent = (text, status) => {
   const trimmed = text.trim();
   if (!trimmed) return 'Kuch likho toh sahi, post khali nahi ho sakti.';
-  if (text.length > MAX_CONTENT_LENGTH) {
-    return `Post bahut lambi hai (max ${MAX_CONTENT_LENGTH} characters).`;
-  }
-  if (status === 'published' && trimmed.length < MIN_PUBLISH_LENGTH) {
-    return `Publish karne ke liye kam se kam ${MIN_PUBLISH_LENGTH} characters likho. Abhi ${trimmed.length} hain.`;
-  }
+  
   return '';
 };
 
