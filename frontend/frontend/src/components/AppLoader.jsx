@@ -16,14 +16,14 @@ const AppLoader = () => {
       <div className="app-loader-spinner">
         <span className="app-loader-ring" aria-hidden="true" />
         <img
-          src="/favicon.svg"
+          src="/icon.png"
           alt=""
           className="app-loader-logo-img"
           aria-hidden="true"
         />
       </div>
 
-      <p className="app-loader-title">Stack</p>
+      <p className="app-loader-title">Stack – Read and write stories that matter</p>
 
       <p className="app-loader-text">
         {isSlow
