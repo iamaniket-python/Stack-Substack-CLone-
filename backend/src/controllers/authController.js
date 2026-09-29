@@ -23,10 +23,6 @@ const env = require('../config/env');
 
 const REFRESH_COOKIE_NAME = env.cookie.refreshTokenName;
 
-// Local dev: frontend+backend same-site (localhost, alag ports) -> Lax/Strict theek hai.
-// Production: Vercel (frontend) aur Render (backend) alag domains hain -> cross-site cookie
-// bhejne ke liye SameSite=None + Secure=true dono zaroori hain (browser spec ki requirement hai,
-// warna cookie silently drop ho jaata hai aur login turant "logout" jaisa dikhta hai).
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.isProduction,
@@ -48,8 +44,6 @@ const issueTokens = async (res, userId) => {
   return accessToken;
 };
 
-// Agar frontend username nahi bhejta, to email se ek base nikal ke
-// uniqueness check karte hue (test, test2, test3...) suffix laga dete hain.
 const generateUniqueUsername = async (base) => {
   let candidate = base;
   let suffix = 1;
