@@ -16,6 +16,7 @@ import Messages from './pages/Messages';
 import Search from './pages/Search';
 import ProtectedRoute from './routes/ProtectedRoute';
 import NotificationsPage from './pages/NotificationsPage';
+import AppLoader from './components/AppLoader';
 
 function App() {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ function App() {
   }, [dispatch]);
 
   if (!initialized) {
-    return <div className="app-loading">Loading...</div>;
+      return <AppLoader />;
   }
 
   return (
