@@ -97,3 +97,10 @@
     animation: none;
   }
 }
+.app-loader-logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 10px;
+  animation: app-loader-pulse 1.4s var(--ease-soft) infinite;
+}

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import '../styles/app-loader.css';
+import { useEffect, useState } from "react";
+import { PenLine } from "lucide-react";
+import "../styles/app-loader.css";
 
 const AppLoader = () => {
   const [isSlow, setIsSlow] = useState(false);
@@ -14,18 +15,27 @@ const AppLoader = () => {
     <div className="app-loader" role="status" aria-live="polite">
       <div className="app-loader-spinner">
         <span className="app-loader-ring" aria-hidden="true" />
-        <span className="app-loader-logo" aria-hidden="true" />
+        <img
+          src="/favicon.svg"
+          alt=""
+          className="app-loader-logo-img"
+          aria-hidden="true"
+        />
       </div>
 
       <p className="app-loader-title">Stack</p>
 
       <p className="app-loader-text">
         {isSlow
-          ? 'Server is Loading Please wait...'
-          : ' Server Load ho raha hai...'}
+          ? "Server is Loading Please wait..."
+          : " Server Load ho raha hai..."}
       </p>
 
-      {isSlow && <div className="app-loader-bar" aria-hidden="true"><span /></div>}
+      {isSlow && (
+        <div className="app-loader-bar" aria-hidden="true">
+          <span />
+        </div>
+      )}
     </div>
   );
 };
