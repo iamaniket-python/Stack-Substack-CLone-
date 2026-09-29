@@ -61,6 +61,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 // TEMPORARY: email verification ke bina direct reset.
 // Sirf tab chalta hai jab ALLOW_DIRECT_RESET=true ho. Real email aane par ye env hata do.
 const directResetPassword = asyncHandler(async (req, res) => {
+    console.log('ALLOW_DIRECT_RESET =', JSON.stringify(process.env.ALLOW_DIRECT_RESET));
   if (process.env.ALLOW_DIRECT_RESET !== 'true') {
     throw new ApiError(403, 'Direct password reset band hai');
   }
